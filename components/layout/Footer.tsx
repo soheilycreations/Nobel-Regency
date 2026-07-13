@@ -20,8 +20,8 @@ export default function Footer() {
             </p>
           </div>
           <p className="mt-3 max-w-xs text-sm leading-relaxed text-white/50">
-            A quiet, gold-lit address on the Kalutara coast — five minutes from
-            the beach, moments from the Kalutara Bodhiya.
+            A garden bungalow hotel in Bibile — antique-filled rooms, a
+            2-acre garden, and 15 acres of quiet retreat land.
           </p>
         </div>
 
@@ -30,6 +30,14 @@ export default function Footer() {
           <p>{HOTEL.shortAddress}</p>
           <p className="mt-1">+{HOTEL.whatsappNumber}</p>
           <p className="mt-1">reservations@nobelregency.lk</p>
+          <div className="mt-3 flex gap-4">
+            <a href={HOTEL.facebookUrl} target="_blank" rel="noopener noreferrer" className="hover:text-gold">
+              Facebook
+            </a>
+            <a href={HOTEL.bookingComUrl} target="_blank" rel="noopener noreferrer" className="hover:text-gold">
+              Booking.com
+            </a>
+          </div>
         </div>
 
         <div className="text-sm text-white/60">
@@ -43,7 +51,7 @@ export default function Footer() {
       </div>
 
       <div className="mx-auto mt-10 max-w-7xl border-t border-white/10 pt-6 text-xs text-white/30">
-        © {new Date().getFullYear()} Nobel Regency Luxury Suite. All rights reserved.
+        © {new Date().getFullYear()} Nobel Regency Hotel. All rights reserved.
       </div>
     </footer>
   );

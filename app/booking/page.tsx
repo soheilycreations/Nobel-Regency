@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import BookingForm from "@/components/ui/BookingForm";
 
 export const metadata = {
-  title: "Book Your Stay | Nobel Regency Luxury Suite, Kalutara",
+  title: "Book Your Stay | Nobel Regency Hotel, Bibile",
 };
 
 export default function BookingPage() {

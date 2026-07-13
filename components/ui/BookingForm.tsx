@@ -29,11 +29,13 @@ export default function BookingForm() {
     params.get("checkOut") ? new Date(params.get("checkOut")!) : null
   );
   const [guests, setGuests] = useState(Number(params.get("guests") ?? 2));
+  const [acRequested, setAcRequested] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
 
   const room = useMemo(() => ROOMS.find((r) => r.slug === roomSlug) ?? ROOMS[0], [roomSlug]);
   const nights = checkIn && checkOut ? nightsBetween(checkIn.toISOString(), checkOut.toISOString()) : 0;
-  const total = nights * room.pricePerNight;
+  const nightlyRate = room.pricePerNight + (acRequested && room.acSurchargePerNight ? room.acSurchargePerNight : 0);
+  const total = nights * nightlyRate;
 
   const availabilityQuery = useQuery({
     queryKey: ["availability", roomSlug, checkIn, checkOut],
@@ -57,6 +59,7 @@ export default function BookingForm() {
         checkIn: checkIn!.toISOString().slice(0, 10),
         checkOut: checkOut!.toISOString().slice(0, 10),
         guests,
+        acRequested: room.hasACOption ? acRequested : false,
         ...getValues(),
       }),
     onSuccess: () => setConfirmed(true),
@@ -124,16 +127,36 @@ export default function BookingForm() {
               <label className="mb-2 block text-xs uppercase tracking-wider text-white/50">Room</label>
               <select
                 value={roomSlug}
-                onChange={(e) => setRoomSlug(e.target.value)}
+                onChange={(e) => {
+                  setRoomSlug(e.target.value);
+                  setAcRequested(false);
+                }}
                 className="w-full rounded-lg border border-white/15 bg-charcoal px-4 py-3 text-sm text-white focus:border-gold focus:outline-none"
               >
                 {ROOMS.map((r) => (
                   <option key={r.slug} value={r.slug}>
-                    {r.name} — {formatPrice(r.pricePerNight, r.currency)}/night
+                    {r.name} ({r.location}) — {formatPrice(r.pricePerNight, r.currency)}/night
                   </option>
                 ))}
               </select>
             </div>
+
+            {room.hasACOption && (
+              <label className="flex items-center justify-between rounded-lg border border-white/15 bg-charcoal px-4 py-3 text-sm text-white/80">
+                <span>Add air conditioning</span>
+                <span className="flex items-center gap-3">
+                  <span className="text-xs text-gold">
+                    +{formatPrice(room.acSurchargePerNight ?? 0, room.currency)}/night
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={acRequested}
+                    onChange={(e) => setAcRequested(e.target.checked)}
+                    className="h-4 w-4 accent-gold"
+                  />
+                </span>
+              </label>
+            )}
 
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -182,7 +205,7 @@ export default function BookingForm() {
             {checkIn && checkOut && (
               <div className="flex items-center justify-between rounded-lg bg-charcoal px-4 py-3 text-sm">
                 <span className="text-white/60">
-                  {nights} night{nights > 1 ? "s" : ""} · {formatPrice(room.pricePerNight, room.currency)}/night
+                  {nights} night{nights > 1 ? "s" : ""} · {formatPrice(nightlyRate, room.currency)}/night
                 </span>
                 <span className="font-semibold text-gold">{formatPrice(total, room.currency)}</span>
               </div>
@@ -284,11 +307,11 @@ export default function BookingForm() {
           >
             <h3 className="font-serif text-xl text-white">Confirm Your Reservation</h3>
             <div className="space-y-2 rounded-lg bg-charcoal px-4 py-4 text-sm text-white/70">
-              <p>{room.name}</p>
+              <p>{room.name} · {room.location}</p>
               <p>
                 {checkIn?.toDateString()} → {checkOut?.toDateString()} · {nights} night{nights > 1 ? "s" : ""}
               </p>
-              <p>{guests} guest(s)</p>
+              <p>{guests} guest(s){room.hasACOption ? ` · ${acRequested ? "With" : "Without"} air conditioning` : ""}</p>
               <p className="border-t border-white/10 pt-2 text-base font-semibold text-gold">
                 Total: {formatPrice(total, room.currency)}
               </p>

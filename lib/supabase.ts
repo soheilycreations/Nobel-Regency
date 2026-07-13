@@ -49,6 +49,7 @@ export async function createBooking(booking: BookingRequest) {
       check_in: booking.checkIn,
       check_out: booking.checkOut,
       guests: booking.guests,
+      ac_requested: booking.acRequested,
       guest_name: booking.fullName,
       guest_email: booking.email,
       guest_phone: booking.phone,

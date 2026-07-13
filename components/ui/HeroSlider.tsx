@@ -7,16 +7,16 @@ import Link from "next/link";
 
 const SLIDES = [
   {
-    src: "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?q=80&w=2000",
-    alt: "Ocean-view suite terrace at golden hour",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=2000",
-    alt: "Private plunge pool suite",
-  },
-  {
     src: "https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=2000",
-    alt: "Kalutara coastline at dusk",
+    alt: "Garden bungalow veranda at golden hour",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1518495973542-4542c06a5843?q=80&w=2000",
+    alt: "Quiet green grounds at the retreat cottage",
+  },
+  {
+    src: "https://images.unsplash.com/photo-1560185127-6ed189bf02f4?q=80&w=2000",
+    alt: "Antique-furnished interior at Nobel Regency",
   },
 ];
 
@@ -75,7 +75,7 @@ export default function HeroSlider() {
           transition={{ delay: 0.3, duration: 0.8 }}
           className="mb-4 text-xs uppercase tracking-[0.35em] text-gold"
         >
-          Kalutara, Sri Lanka
+          Bibile, Sri Lanka
         </motion.p>
         <motion.h1
           initial={{ opacity: 0, y: 20 }}
@@ -83,7 +83,7 @@ export default function HeroSlider() {
           transition={{ delay: 0.5, duration: 0.9 }}
           className="max-w-3xl font-serif text-4xl leading-tight text-white md:text-6xl lg:text-7xl"
         >
-          Where the Coast Meets<br className="hidden md:block" /> Gold-Lit Luxury
+          A Garden Bungalow,<br className="hidden md:block" /> Steeped in Heritage
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 20 }}
@@ -91,8 +91,8 @@ export default function HeroSlider() {
           transition={{ delay: 0.7, duration: 0.9 }}
           className="mt-6 max-w-xl text-base text-white/70 md:text-lg"
         >
-          The best hotel in Kalutara for those who want ocean views, private
-          suites, and service that anticipates every detail.
+          Antique-filled rooms, a 2-acre garden, and 15 acres of quiet retreat
+          land — the best hotel in Bibile for those who want to slow down.
         </motion.p>
         <motion.div
           initial={{ opacity: 0, y: 20 }}

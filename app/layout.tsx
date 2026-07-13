@@ -22,14 +22,14 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Nobel Regency Luxury Suite | Best Hotel in Kalutara, Sri Lanka",
+  title: "Nobel Regency Hotel | Best Hotel in Bibile, Sri Lanka",
   description:
-    "A 5-star boutique hotel in Kalutara, Sri Lanka — ocean-view suites, private plunge pools, and personalised service minutes from Kalutara Beach and the Kalutara Bodhiya.",
+    "A charming garden bungalow hotel in Bibile, Sri Lanka — antique-filled rooms, a 2-acre organic garden, a family cottage, and a 15-acre meditation retreat, close to Bibile Bubula and Maduru Oya National Park.",
   keywords: HOTEL.seoKeywords,
   openGraph: {
-    title: "Nobel Regency Luxury Suite — Kalutara, Sri Lanka",
+    title: "Nobel Regency Hotel — Bibile, Sri Lanka",
     description:
-      "Golden luxury on the Kalutara coast. Book ocean-view suites and private suites directly.",
+      "A garden bungalow hotel in Bibile with antique-filled rooms, organic food, and a 15-acre meditation retreat. Book directly.",
     type: "website",
     locale: "en_US",
   },
@@ -41,11 +41,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     "@type": "Hotel",
     name: HOTEL.name,
     description:
-      "A 5-star boutique hotel in Kalutara, Sri Lanka offering ocean-view suites and private plunge pool accommodation.",
+      "A garden bungalow hotel in Bibile, Sri Lanka, with antique-filled rooms, a family cottage, and a 15-acre meditation retreat.",
     address: {
       "@type": "PostalAddress",
       streetAddress: HOTEL.shortAddress,
-      addressLocality: "Kalutara",
+      addressLocality: "Bibile",
+      addressRegion: "Uva Province",
       addressCountry: "LK",
     },
     geo: {
@@ -53,8 +54,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       latitude: HOTEL.coordinates.lat,
       longitude: HOTEL.coordinates.lng,
     },
-    starRating: { "@type": "Rating", ratingValue: "5" },
-    priceRange: "LKR 28,000 - LKR 95,000",
+    sameAs: [HOTEL.facebookUrl, HOTEL.bookingComUrl],
+    priceRange: "LKR 8,500 - LKR 15,500",
   };
 
   return (

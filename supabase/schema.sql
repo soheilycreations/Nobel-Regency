@@ -1,13 +1,13 @@
--- Nobel Regency Luxury Suite — Supabase schema
+-- Nobel Regency Hotel (Bibile) — Supabase schema
 -- Run in the Supabase SQL editor.
-
-create extension if not exists btree_gist;
 
 create table if not exists rooms (
   slug text primary key,
   name text not null,
   total_units int not null default 1,
   price_per_night numeric not null,
+  ac_surcharge_per_night numeric,
+  has_ac_option boolean not null default false,
   currency text not null default 'LKR',
   max_guests int not null default 2,
   created_at timestamptz default now()
@@ -19,6 +19,7 @@ create table if not exists bookings (
   check_in date not null,
   check_out date not null,
   guests int not null,
+  ac_requested boolean not null default false,
   guest_name text not null,
   guest_email text not null,
   guest_phone text not null,
@@ -30,15 +31,43 @@ create table if not exists bookings (
   created_at timestamptz default now()
 );
 
--- Prevent overlapping CONFIRMED bookings for the same room (trigger-first,
--- same principle used in the ScrapYard financial ledger: the database is the
--- source of truth, not the client).
-alter table bookings
-  add constraint no_overlapping_confirmed_bookings
-  exclude using gist (
-    room_slug with =,
-    stay_range with &&
-  ) where (status = 'confirmed');
+-- Prevent overbooking at the database level. Each room type can have more
+-- than one physical unit (e.g. 4 Garden Double Rooms), so a simple pairwise
+-- exclusion constraint would incorrectly block a second confirmed booking
+-- even when units are still free. Instead, this trigger counts overlapping
+-- CONFIRMED bookings against rooms.total_units before allowing a booking to
+-- become confirmed — the same trigger-first, DB-is-source-of-truth approach
+-- used in the ScrapYard ledger.
+create or replace function prevent_overbooking()
+returns trigger
+language plpgsql
+as $$
+declare
+  v_total_units int;
+  v_overlapping int;
+begin
+  if new.status = 'confirmed' then
+    select total_units into v_total_units from rooms where slug = new.room_slug;
+
+    select count(*) into v_overlapping
+    from bookings
+    where room_slug = new.room_slug
+      and status = 'confirmed'
+      and id <> new.id
+      and daterange(check_in, check_out, '[)') && daterange(new.check_in, new.check_out, '[)');
+
+    if v_overlapping >= coalesce(v_total_units, 1) then
+      raise exception 'No units left for room % on the requested dates', new.room_slug;
+    end if;
+  end if;
+
+  return new;
+end;
+$$;
+
+create trigger trg_prevent_overbooking
+  before insert or update on bookings
+  for each row execute function prevent_overbooking();
 
 -- RPC used by lib/supabase.ts::checkAvailability
 create or replace function check_room_availability(
@@ -69,8 +98,9 @@ $$;
 
 -- Seed data (matches lib/rooms-data.ts — keep both in sync, or replace
 -- lib/rooms-data.ts with a Supabase fetch once this is your source of truth)
-insert into rooms (slug, name, total_units, price_per_night, currency, max_guests) values
-  ('regency-ocean-suite', 'Regency Ocean Suite', 4, 42000, 'LKR', 2),
-  ('heritage-garden-room', 'Heritage Garden Room', 6, 28000, 'LKR', 2),
-  ('presidential-gold-suite', 'Presidential Gold Suite', 1, 95000, 'LKR', 4)
+insert into rooms (slug, name, total_units, price_per_night, ac_surcharge_per_night, has_ac_option, currency, max_guests) values
+  ('garden-double-room', 'Garden Double Room', 4, 9500, 1500, true, 'LKR', 2),
+  ('family-bedroom', 'Family Bedroom', 1, 13500, 2000, true, 'LKR', 4),
+  ('cottage-bedroom', 'Cottage Bedroom', 2, 11000, 1500, true, 'LKR', 2),
+  ('meditation-retreat-cottage', 'Meditation Retreat Cottage', 1, 8500, null, false, 'LKR', 2)
 on conflict (slug) do nothing;

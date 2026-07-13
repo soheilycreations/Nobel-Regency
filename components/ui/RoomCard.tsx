@@ -32,14 +32,15 @@ export default function RoomCard({ room, index = 0 }: { room: Room; index?: numb
 
       <div className="p-6">
         <h3 className="font-serif text-xl text-white">{room.name}</h3>
-        <p className="mt-1 text-sm text-white/50">{room.tagline}</p>
+        <p className="text-xs uppercase tracking-wider text-gold/70">{room.location}</p>
+        <p className="mt-2 text-sm text-white/50">{room.tagline}</p>
 
         <div className="mt-4 flex items-center justify-between border-t border-white/10 pt-4">
           <div>
             <p className="text-lg font-semibold text-gold">
               {formatPrice(room.pricePerNight, room.currency)}
             </p>
-            <p className="text-xs text-white/40">per night</p>
+            <p className="text-xs text-white/40">per night{room.hasACOption ? " (non-AC)" : ""}</p>
           </div>
           <Link
             href={`/rooms/${room.slug}`}

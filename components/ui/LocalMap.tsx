@@ -13,7 +13,7 @@ export default function LocalMap() {
       <div className="mb-12 text-center">
         <p className="text-xs uppercase tracking-[0.3em] text-gold">Location</p>
         <h2 className="mt-3 font-serif text-3xl text-white md:text-4xl">
-          Steps from Kalutara&rsquo;s Best
+          Rooted in Bibile&rsquo;s Countryside
         </h2>
       </div>
 
@@ -29,7 +29,7 @@ export default function LocalMap() {
             src={mapSrc}
             className="h-full w-full grayscale invert-[0.92] contrast-[1.1]"
             loading="lazy"
-            title="Nobel Regency Luxury Suite location map"
+            title="Nobel Regency Hotel location map"
           />
         </motion.div>
 

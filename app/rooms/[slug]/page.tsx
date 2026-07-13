@@ -14,7 +14,7 @@ export function generateMetadata({ params }: { params: { slug: string } }): Meta
   const room = getRoomBySlug(params.slug);
   if (!room) return {};
   return {
-    title: `${room.name} | Nobel Regency Luxury Suite, Kalutara`,
+    title: `${room.name} | Nobel Regency Hotel, Bibile`,
     description: room.description,
   };
 }
@@ -55,11 +55,17 @@ export default function RoomPage({ params }: { params: { slug: string } }) {
         <div className="mt-10 grid gap-10 md:grid-cols-3">
           <div className="md:col-span-2">
             <p className="text-xs uppercase tracking-[0.3em] text-gold">
-              {room.bedType} · {room.sizeSqm} m² · Up to {room.maxGuests} guests
+              {room.location} · {room.bedType}
+              {room.sizeSqm ? ` · ${room.sizeSqm} m²` : ""} · Up to {room.maxGuests} guests
             </p>
             <h1 className="mt-3 font-serif text-3xl text-white md:text-4xl">{room.name}</h1>
             <p className="mt-2 text-white/50">{room.tagline}</p>
             <p className="mt-6 max-w-2xl leading-relaxed text-white/70">{room.description}</p>
+            {room.hasACOption && (
+              <p className="mt-3 text-sm text-gold/80">
+                Available with or without air conditioning (+{formatPrice(room.acSurchargePerNight ?? 0, room.currency)}/night)
+              </p>
+            )}
 
             <div className="mt-8">
               <p className="mb-4 text-xs uppercase tracking-[0.2em] text-gold">Amenities</p>
