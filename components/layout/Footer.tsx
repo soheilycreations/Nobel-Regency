@@ -20,8 +20,8 @@ export default function Footer() {
             </p>
           </div>
           <p className="mt-3 max-w-xs text-sm leading-relaxed text-white/50">
-            A garden bungalow hotel in Bibile — antique-filled rooms, a
-            2-acre garden, and 15 acres of quiet retreat land.
+            A garden bungalow hotel in Bibile — antique-filled rooms, a quiet
+            retreat setting, and service guests keep coming back for.
           </p>
         </div>
 

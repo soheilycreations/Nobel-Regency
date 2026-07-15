@@ -42,7 +42,7 @@ export default function HomePage() {
             Suites Designed for Stillness
           </h2>
         </div>
-        <div className="grid gap-6 md:grid-cols-3">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {ROOMS.map((room, i) => (
             <RoomCard key={room.slug} room={room} index={i} />
           ))}
@@ -57,11 +57,11 @@ export default function HomePage() {
               Everything, Considered
             </h2>
           </div>
-          <div className="grid grid-cols-2 gap-6 md:grid-cols-3 lg:grid-cols-6">
+          <div className="flex flex-wrap justify-center gap-6">
             {AMENITIES.map(({ icon: Icon, label }) => (
               <div
                 key={label}
-                className="flex flex-col items-center gap-3 rounded-xl border border-white/10 bg-charcoal-soft px-4 py-8 text-center"
+                className="flex w-36 flex-col items-center gap-3 rounded-xl border border-white/10 bg-charcoal-soft px-4 py-8 text-center sm:w-40"
               >
                 <Icon size={22} className="text-gold" />
                 <span className="text-xs text-white/70">{label}</span>

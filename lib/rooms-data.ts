@@ -102,10 +102,10 @@ export const ROOMS: Room[] = [
   {
     slug: "meditation-retreat-cottage",
     name: "Meditation Retreat Cottage",
-    location: "15-Acre Retreat Grounds",
-    tagline: "A standalone cottage set in 15 acres of quiet green land",
+    location: "Retreat Grounds",
+    tagline: "A standalone cottage set in quiet, green retreat land",
     description:
-      "For guests visiting for meditation or a genuine break from noise, this standalone cottage sits within the Regency's own 15-acre grounds, away from the main bungalow. Simple, quiet, and close to nature.",
+      "For guests visiting for meditation or a genuine break from noise, this standalone cottage sits within the Regency's own retreat grounds, away from the main bungalow. Simple, quiet, and close to nature.",
     pricePerNight: 8500,
     hasACOption: false,
     currency: "LKR",
@@ -117,7 +117,7 @@ export const ROOMS: Room[] = [
       "/photos/banana-leaf-couple.jpg",
       "/photos/garden-path-flowers.jpg",
     ],
-    amenities: ["15-acre private grounds", "Meditation space", "Nature views", "Peaceful, no road noise"],
+    amenities: ["Private retreat grounds", "Meditation space", "Nature views", "Peaceful, no road noise"],
     featured: true,
   },
 ];

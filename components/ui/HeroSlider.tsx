@@ -91,8 +91,8 @@ export default function HeroSlider() {
           transition={{ delay: 0.7, duration: 0.9 }}
           className="mt-6 max-w-xl text-base text-white/70 md:text-lg"
         >
-          Antique-filled rooms, a 2-acre garden, and 15 acres of quiet retreat
-          land — the best hotel in Bibile for those who want to slow down.
+          Antique-filled rooms, a peaceful garden, and genuinely warm
+          service — the best hotel in Bibile for those who want to slow down.
         </motion.p>
         <motion.div
           initial={{ opacity: 0, y: 20 }}

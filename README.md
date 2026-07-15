@@ -16,6 +16,27 @@ Open http://localhost:3000
 
 ## What's wired up
 
+- **Real reviews shown directly on-site** (not just links out): the Guest
+  Stories section now shows guest feedback paraphrased from verified reviews
+  found on Booking.com and Wego for this exact property (same address, same
+  owner name "Ruwan" mentioned across independent listings) — see the
+  `REVIEWS` array in `components/ui/Testimonials.tsx`. These are rewritten
+  in our own words rather than quoted verbatim, with the source noted under
+  each. I could not independently verify a Google/TripAdvisor rating for
+  this specific property (a similarly-named "Nobel Regency" listing on
+  TripAdvisor is actually in Badulla, a different town — not this hotel), so
+  no Google/TripAdvisor review widget is embedded. If you have access to the
+  Google Business dashboard, screenshotting a few real reviews and sending
+  them over is the safest way to add authentic Google review content.
+- **Removed specific acreage claims** ("2-acre garden", "15-acre retreat")
+  from the hero, footer, room copy, and SEO metadata — replaced with
+  service-focused language instead, per your note that those figures weren't
+  right.
+- **Grid/alignment fixes**: the Featured Rooms grid was built for 3 rooms
+  and left an orphaned 4th card once the room list grew to 4; the Amenities
+  grid similarly broke once a 7th item was added. Both now use layouts that
+  stay balanced regardless of how many items are in the list.
+
 - **Layout fix**: the room detail page had no bottom padding on desktop, so
   content ran straight into the footer with no gap. Fixed in
   `app/rooms/[slug]/page.tsx`.
@@ -42,7 +63,7 @@ Open http://localhost:3000
 - Room/inventory model matches the real property: 4 individually bookable
   **Garden Double Rooms** in the main bungalow, 1 **Family Bedroom**, 2
   individually bookable **Cottage Bedrooms** in the separate family cottage,
-  and 1 **Meditation Retreat Cottage** on the 15-acre grounds — see
+  and 1 **Meditation Retreat Cottage** on the retreat grounds — see
   `lib/rooms-data.ts`.
 - **AC as a per-booking option**: rooms that offer it show an "Add air
   conditioning" checkbox in the booking form with its own nightly surcharge,
