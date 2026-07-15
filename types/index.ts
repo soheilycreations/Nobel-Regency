@@ -1,4 +1,5 @@
 export interface Room {
+  id?: string;
   slug: string;
   name: string;
   location: string;
@@ -17,6 +18,19 @@ export interface Room {
   featured?: boolean;
 }
 
+export interface Tour {
+  id?: string;
+  slug: string;
+  name: string;
+  tagline: string;
+  description: string;
+  durationLabel: string;
+  priceLabel: string;
+  images: string[];
+  highlights: string[];
+  featured?: boolean;
+}
+
 export interface BookingRequest {
   roomSlug: string;
   checkIn: string;
@@ -27,6 +41,13 @@ export interface BookingRequest {
   email: string;
   phone: string;
   specialRequests?: string;
+}
+
+export interface BookingRecord extends BookingRequest {
+  id: string;
+  status: "pending" | "confirmed" | "cancelled";
+  createdAt: string;
+  paypalOrderId?: string;
 }
 
 export interface AvailabilityResult {

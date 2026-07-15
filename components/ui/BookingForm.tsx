@@ -9,10 +9,11 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Loader2 } from "lucide-react";
-import { ROOMS } from "@/lib/rooms-data";
+import PayPalButton from "@/components/ui/PayPalButton";
+import { ROOMS as SEED_ROOMS } from "@/lib/rooms-data";
 import { guestDetailsSchema, type GuestDetailsForm } from "@/lib/schemas";
-import { checkAvailability, createBooking } from "@/lib/supabase";
-import { formatPrice, nightsBetween } from "@/lib/utils";
+import { checkAvailability, createBooking, getRooms } from "@/lib/supabase";
+import { formatPrice, nightsBetween, lkrToUsd } from "@/lib/utils";
 
 const STEPS = ["Dates & Room", "Guest Details", "Confirm & Pay"] as const;
 
@@ -21,6 +22,8 @@ export default function BookingForm() {
   const router = useRouter();
 
   const [step, setStep] = useState(0);
+  const roomsQuery = useQuery({ queryKey: ["rooms"], queryFn: getRooms, initialData: SEED_ROOMS });
+  const ROOMS = roomsQuery.data;
   const [roomSlug, setRoomSlug] = useState(params.get("room") ?? ROOMS[0].slug);
   const [checkIn, setCheckIn] = useState<Date | null>(
     params.get("checkIn") ? new Date(params.get("checkIn")!) : null
@@ -31,6 +34,8 @@ export default function BookingForm() {
   const [guests, setGuests] = useState(Number(params.get("guests") ?? 2));
   const [acRequested, setAcRequested] = useState(false);
   const [confirmed, setConfirmed] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"later" | "paypal">("later");
+  const [paypalError, setPaypalError] = useState<string | null>(null);
 
   const room = useMemo(() => ROOMS.find((r) => r.slug === roomSlug) ?? ROOMS[0], [roomSlug]);
   const nights = checkIn && checkOut ? nightsBetween(checkIn.toISOString(), checkOut.toISOString()) : 0;
@@ -318,33 +323,91 @@ export default function BookingForm() {
             </div>
 
             <p className="text-xs leading-relaxed text-white/40">
-              Payment is securely processed after confirmation. Our team will send a
-              payment link (card or bank transfer) via email and WhatsApp — no card
-              details are collected on this page.
+              Choose how you'd like to handle payment.
             </p>
 
-            <div className="flex gap-3">
+            <div className="flex gap-2 rounded-xl border border-white/10 bg-charcoal p-1">
               <button
                 type="button"
-                onClick={() => setStep(1)}
-                className="w-1/3 rounded-xl border border-white/20 py-3.5 text-sm uppercase tracking-wider text-white/70"
+                onClick={() => setPaymentMethod("later")}
+                className={`flex-1 rounded-lg py-2 text-xs font-medium uppercase tracking-wider ${
+                  paymentMethod === "later" ? "bg-gold text-charcoal-deep" : "text-white/50"
+                }`}
               >
-                Back
+                Reserve, Pay Later
               </button>
               <button
-                onClick={() => bookingMutation.mutate()}
-                disabled={bookingMutation.isPending}
-                className="gold-shimmer-btn flex w-2/3 items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-charcoal-deep disabled:opacity-60"
+                type="button"
+                onClick={() => setPaymentMethod("paypal")}
+                className={`flex-1 rounded-lg py-2 text-xs font-medium uppercase tracking-wider ${
+                  paymentMethod === "paypal" ? "bg-gold text-charcoal-deep" : "text-white/50"
+                }`}
               >
-                {bookingMutation.isPending && <Loader2 size={16} className="animate-spin" />}
-                Confirm Reservation
+                Pay Now (PayPal)
               </button>
             </div>
 
-            {bookingMutation.isError && (
-              <p className="text-sm text-red-400">
-                Something went wrong sending your request. Please try again or reach us on WhatsApp.
-              </p>
+            {paymentMethod === "later" ? (
+              <>
+                <p className="text-xs leading-relaxed text-white/40">
+                  Payment is securely processed after confirmation. Our team will send a
+                  payment link (card or bank transfer) via email and WhatsApp — no card
+                  details are collected on this page.
+                </p>
+
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setStep(1)}
+                    className="w-1/3 rounded-xl border border-white/20 py-3.5 text-sm uppercase tracking-wider text-white/70"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={() => bookingMutation.mutate()}
+                    disabled={bookingMutation.isPending}
+                    className="gold-shimmer-btn flex w-2/3 items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-charcoal-deep disabled:opacity-60"
+                  >
+                    {bookingMutation.isPending && <Loader2 size={16} className="animate-spin" />}
+                    Confirm Reservation
+                  </button>
+                </div>
+
+                {bookingMutation.isError && (
+                  <p className="text-sm text-red-400">
+                    Something went wrong sending your request. Please try again or reach us on WhatsApp.
+                  </p>
+                )}
+              </>
+            ) : (
+              <>
+                <p className="text-xs leading-relaxed text-white/40">
+                  PayPal doesn't support LKR, so this charges approximately{" "}
+                  <span className="text-gold">USD {lkrToUsd(total).toFixed(2)}</span> (today's rough
+                  conversion) instead of the LKR total above. Your reservation is confirmed
+                  automatically once payment goes through.
+                </p>
+                <PayPalButton
+                  booking={{
+                    roomSlug,
+                    checkIn: checkIn!.toISOString().slice(0, 10),
+                    checkOut: checkOut!.toISOString().slice(0, 10),
+                    guests,
+                    acRequested: room.hasACOption ? acRequested : false,
+                    ...getValues(),
+                  }}
+                  onSuccess={() => setConfirmed(true)}
+                  onError={(msg) => setPaypalError(msg)}
+                />
+                {paypalError && <p className="text-sm text-red-400">{paypalError}</p>}
+                <button
+                  type="button"
+                  onClick={() => setStep(1)}
+                  className="w-full rounded-xl border border-white/20 py-3 text-sm uppercase tracking-wider text-white/70"
+                >
+                  Back
+                </button>
+              </>
             )}
           </motion.div>
         )}

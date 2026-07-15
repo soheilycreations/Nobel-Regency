@@ -2,9 +2,7 @@ import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
 import QueryProvider from "./providers";
-import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
-import WhatsAppButton from "@/components/ui/WhatsAppButton";
+import SiteChrome from "@/components/layout/SiteChrome";
 import { HOTEL } from "@/lib/rooms-data";
 
 const playfair = Playfair_Display({
@@ -66,10 +64,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(hotelSchema) }}
         />
         <QueryProvider>
-          <Navbar />
-          {children}
-          <Footer />
-          <WhatsAppButton />
+          <SiteChrome>{children}</SiteChrome>
         </QueryProvider>
       </body>
     </html>

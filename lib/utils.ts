@@ -19,3 +19,14 @@ export function nightsBetween(checkIn: string, checkOut: string) {
   const ms = outDate.getTime() - inDate.getTime();
   return Math.max(1, Math.round(ms / (1000 * 60 * 60 * 24)));
 }
+
+// PayPal does not support LKR as a transaction currency, so any PayPal
+// payment has to run in USD. This rate is a rough approximation (checked
+// against the market rate in July 2026) — for real payments, replace this
+// with a live FX rate lookup or a rate you set and update periodically.
+// This is NOT precise enough to rely on for accounting.
+const APPROX_LKR_PER_USD = 336;
+
+export function lkrToUsd(amountLkr: number): number {
+  return Math.round((amountLkr / APPROX_LKR_PER_USD) * 100) / 100;
+}

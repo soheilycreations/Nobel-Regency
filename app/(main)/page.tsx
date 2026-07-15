@@ -1,8 +1,10 @@
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import HeroSlider from "@/components/ui/HeroSlider";
 import BookingWidget from "@/components/ui/BookingWidget";
 import RoomCard from "@/components/ui/RoomCard";
-import { ROOMS } from "@/lib/rooms-data";
+import TourCard from "@/components/ui/TourCard";
+import { getRooms, getTours } from "@/lib/supabase";
 import { Leaf, Dumbbell, Sparkles, Camera, HeartHandshake, Gem, Car } from "lucide-react";
 
 // Heavy / below-the-fold components are code-split to keep initial load fast on mobile.
@@ -26,7 +28,12 @@ const AMENITIES = [
   { icon: HeartHandshake, label: "Honeymoon Friendly" },
 ];
 
-export default function HomePage() {
+// Rooms and tours are fetched from Supabase (falling back to bundled seed
+// data if Supabase isn't configured or unreachable), so edits made in
+// /admin actually show up here.
+export default async function HomePage() {
+  const [rooms, tours] = await Promise.all([getRooms(), getTours()]);
+
   return (
     <main className="overflow-x-hidden">
       <HeroSlider />
@@ -42,8 +49,8 @@ export default function HomePage() {
             Suites Designed for Stillness
           </h2>
         </div>
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {ROOMS.map((room, i) => (
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-6">
+          {rooms.map((room, i) => (
             <RoomCard key={room.slug} room={room} index={i} />
           ))}
         </div>
@@ -68,6 +75,28 @@ export default function HomePage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      <section id="tours" className="mx-auto max-w-7xl px-5 py-24 md:px-10">
+        <div className="mb-12 text-center">
+          <p className="text-xs uppercase tracking-[0.3em] text-gold">Tours & Experiences</p>
+          <h2 className="mt-3 font-serif text-3xl text-white md:text-4xl">
+            Explore Beyond the Garden
+          </h2>
+        </div>
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-6">
+          {tours.map((tour, i) => (
+            <TourCard key={tour.slug} tour={tour} index={i} />
+          ))}
+        </div>
+        <div className="mt-8 text-center">
+          <Link
+            href="/tours"
+            className="text-sm uppercase tracking-wider text-white/60 underline decoration-gold/40 underline-offset-4 hover:text-gold"
+          >
+            See all tours
+          </Link>
         </div>
       </section>
 

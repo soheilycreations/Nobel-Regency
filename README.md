@@ -1,135 +1,137 @@
 # Nobel Regency Hotel — Bibile
 
-A mobile-first booking site for a garden bungalow hotel in Bibile, Sri Lanka,
-built with Next.js 14 (App Router), Tailwind CSS, Framer Motion, TanStack
-Query, React Hook Form + Zod, and Supabase.
+A mobile-first booking site for a garden bungalow hotel in Bibile, Sri Lanka.
+Next.js 14 (App Router), Tailwind CSS, Framer Motion, TanStack Query, React
+Hook Form + Zod, Supabase (database, auth, storage), and PayPal.
 
 ## Getting started
 
 ```bash
 npm install
-cp .env.example .env.local   # fill in your Supabase project URL + anon key
+cp .env.example .env.local   # fill in the values below
 npm run dev
 ```
 
-Open http://localhost:3000
+Open http://localhost:3000 — the public site works immediately with bundled
+placeholder data. To get the admin panel, database-backed rooms/tours, and
+PayPal working, follow the setup steps below.
 
-## What's wired up
+## Architecture
 
-- **Real reviews shown directly on-site** (not just links out): the Guest
-  Stories section now shows guest feedback paraphrased from verified reviews
-  found on Booking.com and Wego for this exact property (same address, same
-  owner name "Ruwan" mentioned across independent listings) — see the
-  `REVIEWS` array in `components/ui/Testimonials.tsx`. These are rewritten
-  in our own words rather than quoted verbatim, with the source noted under
-  each. I could not independently verify a Google/TripAdvisor rating for
-  this specific property (a similarly-named "Nobel Regency" listing on
-  TripAdvisor is actually in Badulla, a different town — not this hotel), so
-  no Google/TripAdvisor review widget is embedded. If you have access to the
-  Google Business dashboard, screenshotting a few real reviews and sending
-  them over is the safest way to add authentic Google review content.
-- **Removed specific acreage claims** ("2-acre garden", "15-acre retreat")
-  from the hero, footer, room copy, and SEO metadata — replaced with
-  service-focused language instead, per your note that those figures weren't
-  right.
-- **Grid/alignment fixes**: the Featured Rooms grid was built for 3 rooms
-  and left an orphaned 4th card once the room list grew to 4; the Amenities
-  grid similarly broke once a 7th item was added. Both now use layouts that
-  stay balanced regardless of how many items are in the list.
+- **Public site** (`/`, `/rooms/[slug]`, `/tours`, `/tours/[slug]`,
+  `/booking`) reads rooms and tours from Supabase, falling back to the
+  bundled seed data in `lib/rooms-data.ts` / `lib/tours-data.ts` if Supabase
+  isn't configured or briefly unreachable. This means the site works out of
+  the box, and anything you edit in `/admin` shows up live on the public
+  pages.
+- **Admin panel** (`/admin`) — protected by Supabase Auth. Add/edit/delete
+  rooms and tours (with photo upload to Supabase Storage), and review/update
+  bookings. There's no public sign-up; accounts are created directly in the
+  Supabase dashboard, so you control exactly who has access (supports
+  multiple staff logins, as requested).
+- **Bookings**: a guest fills out the 3-step form and either (a) submits a
+  `pending` booking that your team confirms over WhatsApp, or (b) pays
+  immediately via PayPal, which auto-confirms the booking once PayPal
+  verifies the payment server-side.
+- **Database**: Postgres via Supabase. `supabase/schema.sql` has the full
+  schema, Row Level Security policies, and a trigger that prevents
+  overbooking a room type across its multiple physical units.
 
-- **Layout fix**: the room detail page had no bottom padding on desktop, so
-  content ran straight into the footer with no gap. Fixed in
-  `app/rooms/[slug]/page.tsx`.
-- **Room data corrected against the actual Booking.com listing**: sizes,
-  guest capacity, and amenities for the two main bungalow rooms are no longer
-  guesses — `Double Room with Garden View` (11 m², up to 3 guests) and
-  `Family Room with Garden View` (21 m², up to 7 guests) now match the real
-  listing exactly, including hairdryer, flat-screen TV, electric kettle, etc.
-  Room slugs changed to match (`double-room-garden-view`,
-  `family-room-garden-view`) — update anywhere you've already linked the old
-  URLs.
-- **Removed fabricated testimonials.** The previous version had invented
-  guest names and quotes, which isn't something to publish as real reviews.
-  The Guest Stories section now links straight to your actual Booking.com
-  and Facebook reviews instead.
-- **Distances corrected**: Maduru Oya National Park is 46 km (from your own
-  listing, not the 28 km guessed earlier), and Dunhinda Falls (24 km) is
-  added since it's mentioned in your listing too. Bibile Bubula and
-  Mahiyangana distances are still from general web sources, not your
-  listing — flagged as such, worth double-checking if you use them.
-- Check-in (3:00 PM) / check-out (9:00 AM) times added to the booking page,
-  taken from your listing.
+## Setup steps
 
-- Room/inventory model matches the real property: 4 individually bookable
-  **Garden Double Rooms** in the main bungalow, 1 **Family Bedroom**, 2
-  individually bookable **Cottage Bedrooms** in the separate family cottage,
-  and 1 **Meditation Retreat Cottage** on the retreat grounds — see
-  `lib/rooms-data.ts`.
-- **AC as a per-booking option**: rooms that offer it show an "Add air
-  conditioning" checkbox in the booking form with its own nightly surcharge,
-  rather than being modelled as separate room types.
-- 3-step booking funnel (dates/room → guest details → confirm), written to
-  Supabase as a `pending` booking, confirmed by your team over WhatsApp —
-  per your call to keep the custom form + WhatsApp confirm rather than
-  redirecting straight to Booking.com.
-- Booking.com and Facebook links in the footer, so guests who want instant
-  online payment can still go there.
-- Hotel schema.org structured data reflecting Bibile (not a fabricated star
-  rating — add one back in `app/layout.tsx` if the property is formally
-  rated).
-- Nearby attractions (Bibile Bubula, Maduru Oya National Park, Mahiyangana)
-  with **approximate** road distances — worth confirming exact figures from
-  the property's own location before publishing.
+### 1. Supabase (database + auth + storage)
 
-## What you need to plug in before going live
+1. Create a project at supabase.com.
+2. Run `supabase/schema.sql` in the SQL editor — creates `rooms`, `tours`,
+   `bookings`, the overbooking-prevention trigger, RLS policies, and seeds
+   the current rooms/tours.
+3. Storage → New Bucket → name it `property-photos`, set it **Public**.
+   (Buckets can't be created via SQL, only the dashboard or Storage API.)
+4. Authentication → Users → Add User, once per staff member who needs admin
+   access. Email + password — that's the login for `/admin`. There's no
+   other way to create an account, which is intentional.
+5. Copy your Project URL and anon key into `.env.local`:
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=...
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+   ```
+6. Project Settings → API → service_role key → also into `.env.local` as
+   `SUPABASE_SERVICE_ROLE_KEY`. This one is server-only and bypasses Row
+   Level Security — it's what lets a guest's PayPal payment confirm their
+   own booking without needing to log in. Never expose it to the browser.
 
-1. **Supabase project**: run `supabase/schema.sql` in the SQL editor, then add
-   your project URL/anon key to `.env.local`. The schema uses a trigger
-   (`prevent_overbooking`) that checks confirmed bookings against each room
-   type's `total_units` — correctly handles the 4 Garden Double Rooms as one
-   pool of 4, not 4 separate exclusive slots.
-2. **Real photos**: swapped in — `public/photos/` now has 12 real property
-   photos (garden, bungalow veranda with the antiques/gym, the A-frame family
-   cottage, organic citrus, king coconut, breakfast spreads) used across the
-   hero, all 4 room galleries, and a new "Life at Nobel Regency" section on
-   the homepage. Two uploads weren't used: a casual selfie (not really
-   marketing material) and one that duplicated another close-up. Add more as
-   you get them — every room only has 1-2 real photos each right now, mixed
-   with photos of the garden generally rather than that specific room.
-3. **Prices**: `lib/rooms-data.ts` has placeholder LKR prices for each room
-   and AC surcharge — replace with your actual rates.
-4. **Logo**: `public/brand/logo-transparent.png` is the background-removed
-   full lockup (crest + wordmark); `crest-mark.png` is cropped to just the
-   emblem for the navbar/footer/favicon. Background removal was done with a
-   combination of AI segmentation + a manual alpha mask for the gold text
-   (the automatic tool dropped the text on its own) — worth a quick look at
-   full size before printing it anywhere, since blended/soft edges can show
-   up more at large sizes than on screen.
-5. **WhatsApp**: wired to the real number (+94 72 360 0056).
-6. **Google Maps**: the location section links straight to your real
-   Google Maps share link now. The embedded map itself still uses
-   approximate Bibile town-centre coordinates (share links can't be
-   reverse-geocoded automatically) — send over the plain latitude/longitude
-   if you'd like the embed centred exactly on the property.
-7. **Domain/SEO**: update `metadata` in `app/layout.tsx` and add a real
-   `app/sitemap.ts` + `app/robots.ts` once the domain is live.
+### 2. PayPal (sandbox first, as agreed)
+
+1. developer.paypal.com → Apps & Credentials → make sure you're on
+   **Sandbox** mode → Create App. Copy the Client ID and Secret.
+2. Add to `.env.local`:
+   ```
+   NEXT_PUBLIC_PAYPAL_CLIENT_ID=your-sandbox-client-id
+   PAYPAL_CLIENT_ID=your-sandbox-client-id
+   PAYPAL_CLIENT_SECRET=your-sandbox-secret
+   PAYPAL_ENV=sandbox
+   ```
+3. Test with PayPal's sandbox buyer account (developer.paypal.com →
+   Sandbox → Accounts — there's a default test buyer login).
+4. When you're ready to take real payments: create a **Live** app on the
+   same PayPal developer site, swap in the live Client ID/Secret, and set
+   `PAYPAL_ENV=live`.
+5. **Currency note**: PayPal doesn't support LKR as a checkout currency, so
+   PayPal payments run in USD, converted at an approximate rate hardcoded in
+   `lib/utils.ts` (`APPROX_LKR_PER_USD`). This is clearly shown to the guest
+   before they pay, but update that number periodically — it will drift from
+   the real market rate over time.
+
+### 3. Tours and pricing
+
+Tours are placeholder content — real regional activities (Gal Oya boat
+safari, Vedda village walks, Dunhinda Falls, Maduru Oya safari) but with
+"Contact for pricing" instead of real prices, as agreed. Edit them properly
+in `/admin/tours` once you have durations, prices, and operator details
+sorted out.
+
+## Known limitations, worth knowing about
+
+- **Admin auth check runs client-side** (in `app/admin/layout.tsx`), not in
+  Next.js middleware. It redirects unauthenticated visitors before any admin
+  UI renders, and the actual data is still protected server-side by Row
+  Level Security either way — but a more locked-down setup would move the
+  session check into middleware using `@supabase/ssr`. Worth doing before
+  this holds anything more sensitive than room/tour content.
+- **No Google/TripAdvisor reviews embedded.** I could only verify real
+  reviews via Booking.com and Wego for this exact property (see
+  `components/ui/Testimonials.tsx` — paraphrased, sourced, not invented). A
+  similarly-named "Nobel Regency" on TripAdvisor is actually in Badulla, a
+  different town, so I didn't use it. Send screenshots from your Google
+  Business dashboard if you want real Google reviews added.
+- **Room photos are mostly general property/garden shots**, not photos of
+  each specific room's interior — upload real per-room photos via
+  `/admin/rooms` as you get them.
+- **Google Maps embed uses approximate Bibile town-centre coordinates**, not
+  the exact property pin (share links can't be reverse-geocoded
+  automatically) — the "View on Google Maps" link nearby is accurate, the
+  embedded map graphic itself is not exact.
 
 ## Folder structure
 
 ```
 app/
-  (main)/page.tsx        Home
-  rooms/[slug]/page.tsx   Room detail
-  booking/page.tsx        Booking funnel
+  (main)/page.tsx          Home
+  rooms/[slug]/page.tsx    Room detail
+  tours/, tours/[slug]/    Tours
+  booking/page.tsx         Booking funnel
+  admin/                   Admin panel (login, dashboard, rooms, tours, bookings)
+  api/paypal/              create-order + capture-order route handlers
 components/
-  layout/Navbar.tsx, Footer.tsx
-  ui/HeroSlider.tsx, BookingWidget.tsx, BookingForm.tsx,
-     RoomCard.tsx, Testimonials.tsx, LocalMap.tsx, WhatsAppButton.tsx
+  layout/                  Navbar, Footer
+  ui/                      HeroSlider, BookingForm, PayPalButton, RoomCard, TourCard, etc.
+  admin/                   ImageManager (Supabase Storage uploads)
 lib/
-  supabase.ts   Supabase client + availability/booking functions
-  rooms-data.ts Room inventory, hotel info, testimonials
-  schemas.ts    Zod validation
-  utils.ts      cn(), price/date formatting
+  supabase.ts              Supabase client + rooms/tours/bookings CRUD + auth helpers
+  supabase-admin.ts        Server-only client (service role key) — API routes only
+  paypal.ts                Server-only PayPal REST helper — API routes only
+  rooms-data.ts, tours-data.ts   Seed/fallback content + HOTEL info
+  schemas.ts, utils.ts
 supabase/
-  schema.sql    Tables, RPC, and the overbooking-prevention trigger
+  schema.sql               Tables, RLS policies, overbooking trigger
 ```
