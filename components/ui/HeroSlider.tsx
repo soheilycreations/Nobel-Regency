@@ -7,16 +7,16 @@ import Link from "next/link";
 
 const SLIDES = [
   {
-    src: "https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=2000",
-    alt: "Garden bungalow veranda at golden hour",
+    src: "/photos/garden-path-flowers.jpg",
+    alt: "Garden path through bougainvillea and palms at Nobel Regency",
   },
   {
-    src: "https://images.unsplash.com/photo-1518495973542-4542c06a5843?q=80&w=2000",
-    alt: "Quiet green grounds at the retreat cottage",
+    src: "/photos/bungalow-veranda-antiques-gym.jpg",
+    alt: "The main bungalow's antique-filled veranda",
   },
   {
-    src: "https://images.unsplash.com/photo-1560185127-6ed189bf02f4?q=80&w=2000",
-    alt: "Antique-furnished interior at Nobel Regency",
+    src: "/photos/garden-sunflare.jpg",
+    alt: "Morning light across the garden grounds",
   },
 ];
 

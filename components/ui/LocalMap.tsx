@@ -23,7 +23,7 @@ export default function LocalMap() {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7 }}
-          className="gold-border h-80 overflow-hidden rounded-2xl md:h-full"
+          className="gold-border h-80 overflow-hidden rounded-2xl md:h-[26rem]"
         >
           <iframe
             src={mapSrc}
@@ -34,6 +34,17 @@ export default function LocalMap() {
         </motion.div>
 
         <div className="flex flex-col justify-center gap-4">
+          <p className="text-xs text-white/30">
+            Map pin is approximate — use &ldquo;View on Google Maps&rdquo; below for the exact location.
+          </p>
+          <a
+            href={HOTEL.googleMapsUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="gold-shimmer-btn mb-1 inline-block w-fit rounded-full px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-charcoal-deep"
+          >
+            View on Google Maps
+          </a>
           {HOTEL.nearbyAttractions.map((place, i) => (
             <motion.div
               key={place.name}

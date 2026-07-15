@@ -4,9 +4,10 @@ export const HOTEL = {
   name: "Nobel Regency Hotel",
   location: "Bibile, Sri Lanka",
   shortAddress: "11 Mahiyangana Road, Bibile 90015, Sri Lanka",
-  whatsappNumber: "94770000000", // TODO: replace with real hotel WhatsApp number
+  whatsappNumber: "94723600056",
   facebookUrl: "https://web.facebook.com/nobelregency",
   bookingComUrl: "https://www.booking.com/hotel/lk/nobel-regency.en-gb.html",
+  googleMapsUrl: "https://share.google/dnRpSg6brjznTCE6k",
   // Approximate town-centre coordinates for Bibile, Monaragala District, Uva Province.
   // Swap for the exact property pin once you share it.
   coordinates: { lat: 7.1601, lng: 81.2254 },
@@ -44,9 +45,9 @@ export const ROOMS: Room[] = [
     bedType: "Double",
     totalUnits: 4,
     images: [
-      "https://images.unsplash.com/photo-1590490360182-c33d57733427?q=80&w=1600",
-      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=1600",
-      "https://images.unsplash.com/photo-1560185127-6ed189bf02f4?q=80&w=1600",
+      "/photos/bungalow-veranda-antiques-gym.jpg",
+      "/photos/garden-path-flowers.jpg",
+      "/photos/rustic-garden-seating.jpg",
     ],
     amenities: ["Garden view", "Antique furnishings", "Attached bathroom", "Free WiFi", "Shared sitting area"],
     featured: true,
@@ -66,9 +67,9 @@ export const ROOMS: Room[] = [
     bedType: "Double + Extra beds",
     totalUnits: 1,
     images: [
-      "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?q=80&w=1600",
-      "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=1600",
-      "https://images.unsplash.com/photo-1595576508898-0ad5c879a061?q=80&w=1600",
+      "/photos/bungalow-veranda-antiques-gym.jpg",
+      "/photos/breakfast-spread-overhead.jpg",
+      "/photos/garden-path-flowers.jpg",
     ],
     amenities: ["Garden view", "Extra bedding", "Attached bathroom", "Free WiFi", "Near dining area"],
   },
@@ -87,9 +88,9 @@ export const ROOMS: Room[] = [
     bedType: "Double",
     totalUnits: 2,
     images: [
-      "https://images.unsplash.com/photo-1595576508898-0ad5c879a061?q=80&w=1600",
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1600",
-      "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=1600",
+      "/photos/cottage-veranda-couple.jpg",
+      "/photos/banana-leaf-couple.jpg",
+      "/photos/garden-sunflare.jpg",
     ],
     amenities: ["Shared living area", "Shared kitchen access", "Garden view", "Free WiFi"],
   },
@@ -107,9 +108,9 @@ export const ROOMS: Room[] = [
     bedType: "Double",
     totalUnits: 1,
     images: [
-      "https://images.unsplash.com/photo-1518495973542-4542c06a5843?q=80&w=1600",
-      "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?q=80&w=1600",
-      "https://images.unsplash.com/photo-1476231682828-37e571bc172f?q=80&w=1600",
+      "/photos/rustic-garden-seating.jpg",
+      "/photos/banana-leaf-couple.jpg",
+      "/photos/garden-path-flowers.jpg",
     ],
     amenities: ["15-acre private grounds", "Meditation space", "Nature views", "Peaceful, no road noise"],
     featured: true,

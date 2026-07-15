@@ -44,16 +44,30 @@ Open http://localhost:3000
    (`prevent_overbooking`) that checks confirmed bookings against each room
    type's `total_units` — correctly handles the 4 Garden Double Rooms as one
    pool of 4, not 4 separate exclusive slots.
-2. **Real photos**: every image right now is a placeholder (stock photos —
-   garden/bungalow/antique themed, not the actual property). Swap in real
-   photos of the rooms, garden, antiques, and cottages in
-   `lib/rooms-data.ts` as soon as you have them.
+2. **Real photos**: swapped in — `public/photos/` now has 12 real property
+   photos (garden, bungalow veranda with the antiques/gym, the A-frame family
+   cottage, organic citrus, king coconut, breakfast spreads) used across the
+   hero, all 4 room galleries, and a new "Life at Nobel Regency" section on
+   the homepage. Two uploads weren't used: a casual selfie (not really
+   marketing material) and one that duplicated another close-up. Add more as
+   you get them — every room only has 1-2 real photos each right now, mixed
+   with photos of the garden generally rather than that specific room.
 3. **Prices**: `lib/rooms-data.ts` has placeholder LKR prices for each room
    and AC surcharge — replace with your actual rates.
-4. **WhatsApp number**: `HOTEL.whatsappNumber` in `lib/rooms-data.ts`.
-5. **Google Maps**: `LocalMap.tsx` uses a keyless embed URL centred on
-   approximate Bibile town coordinates — swap in the exact property pin.
-6. **Domain/SEO**: update `metadata` in `app/layout.tsx` and add a real
+4. **Logo**: `public/brand/logo-transparent.png` is the background-removed
+   full lockup (crest + wordmark); `crest-mark.png` is cropped to just the
+   emblem for the navbar/footer/favicon. Background removal was done with a
+   combination of AI segmentation + a manual alpha mask for the gold text
+   (the automatic tool dropped the text on its own) — worth a quick look at
+   full size before printing it anywhere, since blended/soft edges can show
+   up more at large sizes than on screen.
+5. **WhatsApp**: wired to the real number (+94 72 360 0056).
+6. **Google Maps**: the location section links straight to your real
+   Google Maps share link now. The embedded map itself still uses
+   approximate Bibile town-centre coordinates (share links can't be
+   reverse-geocoded automatically) — send over the plain latitude/longitude
+   if you'd like the embed centred exactly on the property.
+7. **Domain/SEO**: update `metadata` in `app/layout.tsx` and add a real
    `app/sitemap.ts` + `app/robots.ts` once the domain is live.
 
 ## Folder structure

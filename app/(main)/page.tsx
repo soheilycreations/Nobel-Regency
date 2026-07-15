@@ -9,6 +9,9 @@ import { Leaf, Dumbbell, Sparkles, Camera, HeartHandshake, Gem } from "lucide-re
 const LocalMap = dynamic(() => import("@/components/ui/LocalMap"), {
   loading: () => <div className="h-96 animate-pulse bg-charcoal-soft" />,
 });
+const LifeGallery = dynamic(() => import("@/components/ui/LifeGallery"), {
+  loading: () => <div className="h-64 animate-pulse bg-charcoal-soft" />,
+});
 const Testimonials = dynamic(() => import("@/components/ui/Testimonials"), {
   loading: () => <div className="h-64 animate-pulse bg-charcoal-soft" />,
 });
@@ -67,6 +70,7 @@ export default function HomePage() {
         </div>
       </section>
 
+      <LifeGallery />
       <LocalMap />
       <Testimonials />
     </main>
