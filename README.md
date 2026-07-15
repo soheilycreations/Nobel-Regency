@@ -16,6 +16,29 @@ Open http://localhost:3000
 
 ## What's wired up
 
+- **Layout fix**: the room detail page had no bottom padding on desktop, so
+  content ran straight into the footer with no gap. Fixed in
+  `app/rooms/[slug]/page.tsx`.
+- **Room data corrected against the actual Booking.com listing**: sizes,
+  guest capacity, and amenities for the two main bungalow rooms are no longer
+  guesses — `Double Room with Garden View` (11 m², up to 3 guests) and
+  `Family Room with Garden View` (21 m², up to 7 guests) now match the real
+  listing exactly, including hairdryer, flat-screen TV, electric kettle, etc.
+  Room slugs changed to match (`double-room-garden-view`,
+  `family-room-garden-view`) — update anywhere you've already linked the old
+  URLs.
+- **Removed fabricated testimonials.** The previous version had invented
+  guest names and quotes, which isn't something to publish as real reviews.
+  The Guest Stories section now links straight to your actual Booking.com
+  and Facebook reviews instead.
+- **Distances corrected**: Maduru Oya National Park is 46 km (from your own
+  listing, not the 28 km guessed earlier), and Dunhinda Falls (24 km) is
+  added since it's mentioned in your listing too. Bibile Bubula and
+  Mahiyangana distances are still from general web sources, not your
+  listing — flagged as such, worth double-checking if you use them.
+- Check-in (3:00 PM) / check-out (9:00 AM) times added to the booking page,
+  taken from your listing.
+
 - Room/inventory model matches the real property: 4 individually bookable
   **Garden Double Rooms** in the main bungalow, 1 **Family Bedroom**, 2
   individually bookable **Cottage Bedrooms** in the separate family cottage,

@@ -24,7 +24,7 @@ export default function RoomPage({ params }: { params: { slug: string } }) {
   if (!room) notFound();
 
   return (
-    <main className="pt-28 md:pt-32">
+    <main className="pt-28 md:pb-24 md:pt-32">
       <div className="mx-auto max-w-6xl px-5 md:px-10">
         <div className="grid gap-3 md:grid-cols-3 md:gap-4">
           <div className="relative h-80 overflow-hidden rounded-2xl md:col-span-2 md:h-[28rem]">

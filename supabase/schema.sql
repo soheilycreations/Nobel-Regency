@@ -99,8 +99,8 @@ $$;
 -- Seed data (matches lib/rooms-data.ts — keep both in sync, or replace
 -- lib/rooms-data.ts with a Supabase fetch once this is your source of truth)
 insert into rooms (slug, name, total_units, price_per_night, ac_surcharge_per_night, has_ac_option, currency, max_guests) values
-  ('garden-double-room', 'Garden Double Room', 4, 9500, 1500, true, 'LKR', 2),
-  ('family-bedroom', 'Family Bedroom', 1, 13500, 2000, true, 'LKR', 4),
+  ('double-room-garden-view', 'Double Room with Garden View', 4, 9500, 1500, true, 'LKR', 3),
+  ('family-room-garden-view', 'Family Room with Garden View', 1, 13500, 2000, true, 'LKR', 7),
   ('cottage-bedroom', 'Cottage Bedroom', 2, 11000, 1500, true, 'LKR', 2),
   ('meditation-retreat-cottage', 'Meditation Retreat Cottage', 1, 8500, null, false, 'LKR', 2)
 on conflict (slug) do nothing;

@@ -2,40 +2,50 @@
 
 import { motion } from "framer-motion";
 import { Star } from "lucide-react";
-import { TESTIMONIALS } from "@/lib/rooms-data";
+import { HOTEL } from "@/lib/rooms-data";
 
 export default function Testimonials() {
   return (
     <section id="testimonials" className="mx-auto max-w-7xl px-5 py-24 md:px-10">
-      <div className="mb-12 text-center">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6 }}
+        className="mx-auto max-w-2xl rounded-2xl border border-gold/20 bg-charcoal-soft p-10 text-center"
+      >
+        <div className="mb-3 flex justify-center gap-1">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Star key={i} size={16} className="text-gold/40" />
+          ))}
+        </div>
         <p className="text-xs uppercase tracking-[0.3em] text-gold">Guest Stories</p>
         <h2 className="mt-3 font-serif text-3xl text-white md:text-4xl">
-          Told in Their Own Words
+          Read Real Reviews
         </h2>
-      </div>
-
-      <div className="grid gap-6 md:grid-cols-3">
-        {TESTIMONIALS.map((t, i) => (
-          <motion.div
-            key={t.name}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.12, duration: 0.6 }}
-            className="rounded-2xl border border-white/10 bg-charcoal-soft p-6"
+        <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-white/60">
+          Rather than make up quotes, we&rsquo;d rather point you to what
+          guests have actually said on Booking.com and Facebook.
+        </p>
+        <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+          <a
+            href={HOTEL.bookingComUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="gold-shimmer-btn rounded-full px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-charcoal-deep"
           >
-            <div className="mb-3 flex gap-1">
-              {Array.from({ length: t.rating }).map((_, idx) => (
-                <Star key={idx} size={14} className="fill-gold text-gold" />
-              ))}
-            </div>
-            <p className="text-sm leading-relaxed text-white/70">&ldquo;{t.quote}&rdquo;</p>
-            <p className="mt-4 text-sm font-medium text-white">
-              {t.name} <span className="text-white/40">— {t.country}</span>
-            </p>
-          </motion.div>
-        ))}
-      </div>
+            Reviews on Booking.com
+          </a>
+          <a
+            href={HOTEL.facebookUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-full border border-gold/30 px-6 py-2.5 text-xs font-semibold uppercase tracking-wider text-gold"
+          >
+            Visit our Facebook
+          </a>
+        </div>
+      </motion.div>
     </section>
   );
 }

@@ -3,7 +3,7 @@ import HeroSlider from "@/components/ui/HeroSlider";
 import BookingWidget from "@/components/ui/BookingWidget";
 import RoomCard from "@/components/ui/RoomCard";
 import { ROOMS } from "@/lib/rooms-data";
-import { Leaf, Dumbbell, Sparkles, Camera, HeartHandshake, Gem } from "lucide-react";
+import { Leaf, Dumbbell, Sparkles, Camera, HeartHandshake, Gem, Car } from "lucide-react";
 
 // Heavy / below-the-fold components are code-split to keep initial load fast on mobile.
 const LocalMap = dynamic(() => import("@/components/ui/LocalMap"), {
@@ -21,6 +21,7 @@ const AMENITIES = [
   { icon: Gem, label: "Antique Collection" },
   { icon: Dumbbell, label: "On-site Gym" },
   { icon: Sparkles, label: "Beauty Salon" },
+  { icon: Car, label: "Free Parking" },
   { icon: Camera, label: "Garden Photoshoots" },
   { icon: HeartHandshake, label: "Honeymoon Friendly" },
 ];

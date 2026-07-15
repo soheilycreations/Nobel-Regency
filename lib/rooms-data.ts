@@ -1,4 +1,4 @@
-import { Room, Testimonial } from "@/types";
+import { Room } from "@/types";
 
 export const HOTEL = {
   name: "Nobel Regency Hotel",
@@ -8,6 +8,8 @@ export const HOTEL = {
   facebookUrl: "https://web.facebook.com/nobelregency",
   bookingComUrl: "https://www.booking.com/hotel/lk/nobel-regency.en-gb.html",
   googleMapsUrl: "https://share.google/dnRpSg6brjznTCE6k",
+  checkInFrom: "3:00 PM",
+  checkOutBy: "9:00 AM",
   // Approximate town-centre coordinates for Bibile, Monaragala District, Uva Province.
   // Swap for the exact property pin once you share it.
   coordinates: { lat: 7.1601, lng: 81.2254 },
@@ -19,59 +21,62 @@ export const HOTEL = {
     "Bibile honeymoon hotel",
     "meditation retreat Uva Sri Lanka",
   ],
-  // Distances are approximate road distances — worth confirming against the
-  // exact property location before publishing.
+  // Maduru Oya and Dunhinda Falls distances are from the property's own
+  // Booking.com listing. Bibile Bubula and Mahiyangana are from general web
+  // sources, not the property listing itself — worth double-checking.
   nearbyAttractions: [
+    { name: "Maduru Oya National Park", distanceKm: 46 },
+    { name: "Dunhinda Falls", distanceKm: 24 },
     { name: "Bibile Bubula Natural Springs", distanceKm: 3 },
-    { name: "Maduru Oya National Park", distanceKm: 28 },
     { name: "Mahiyangana Raja Maha Vihara", distanceKm: 39 },
-    { name: "Bibile Town Centre", distanceKm: 1 },
   ],
 };
 
 export const ROOMS: Room[] = [
   {
-    slug: "garden-double-room",
-    name: "Garden Double Room",
+    slug: "double-room-garden-view",
+    name: "Double Room with Garden View",
     location: "Main Bungalow",
-    tagline: "A double bedroom surrounded by heritage antiques and garden views",
+    tagline: "A compact double room with a private terrace over the garden",
     description:
-      "One of four double bedrooms in the main bungalow, each finished with pieces from the Regency's antique collection and looking out over the 2-acre garden. Book with or without air conditioning.",
+      "A double room with a terrace looking over the garden, and a private bathroom with a shower. Available with or without air conditioning.",
     pricePerNight: 9500,
     acSurchargePerNight: 1500,
     hasACOption: true,
     currency: "LKR",
-    maxGuests: 2,
-    bedType: "Double",
+    maxGuests: 3,
+    sizeSqm: 11,
+    bedType: "1 Bed",
     totalUnits: 4,
     images: [
       "/photos/bungalow-veranda-antiques-gym.jpg",
       "/photos/garden-path-flowers.jpg",
       "/photos/rustic-garden-seating.jpg",
     ],
-    amenities: ["Garden view", "Antique furnishings", "Attached bathroom", "Free WiFi", "Shared sitting area"],
+    amenities: ["Garden view", "Private terrace", "Private bathroom with shower", "Dining area", "Electric kettle", "Free WiFi"],
     featured: true,
   },
   {
-    slug: "family-bedroom",
-    name: "Family Bedroom",
+    slug: "family-room-garden-view",
+    name: "Family Room with Garden View",
     location: "Main Bungalow",
-    tagline: "The bungalow's largest bedroom, built for families",
+    tagline: "A larger room for families, with a bath, TV, and garden views",
     description:
-      "A spacious family bedroom within the main bungalow, close to the dining area, lobby, and modern kitchen — comfortable for parents travelling with children. Available with or without air conditioning.",
+      "A family room with a bath and shower, hairdryer, flat-screen TV, dining area, and wardrobe, looking out over the garden. Available with or without air conditioning.",
     pricePerNight: 13500,
     acSurchargePerNight: 2000,
     hasACOption: true,
     currency: "LKR",
-    maxGuests: 4,
-    bedType: "Double + Extra beds",
+    maxGuests: 7,
+    sizeSqm: 21,
+    bedType: "2 Beds",
     totalUnits: 1,
     images: [
       "/photos/bungalow-veranda-antiques-gym.jpg",
       "/photos/breakfast-spread-overhead.jpg",
       "/photos/garden-path-flowers.jpg",
     ],
-    amenities: ["Garden view", "Extra bedding", "Attached bathroom", "Free WiFi", "Near dining area"],
+    amenities: ["Garden view", "Bath & shower", "Hairdryer", "Flat-screen TV", "Dining area", "Wardrobe", "Electric kettle", "Free WiFi"],
   },
   {
     slug: "cottage-bedroom",
@@ -114,30 +119,6 @@ export const ROOMS: Room[] = [
     ],
     amenities: ["15-acre private grounds", "Meditation space", "Nature views", "Peaceful, no road noise"],
     featured: true,
-  },
-];
-
-export const TESTIMONIALS: Testimonial[] = [
-  {
-    name: "Nadeesha Gunawardena",
-    country: "Sri Lanka",
-    quote:
-      "Booked the family cottage for a weekend away from Colombo. The garden and the antiques everywhere give it a character you don't get in a normal hotel.",
-    rating: 5,
-  },
-  {
-    name: "Marco Bianchi",
-    country: "Italy",
-    quote:
-      "Stayed at the retreat cottage for four nights to meditate and disconnect. Fifteen acres of complete quiet — exactly what I needed.",
-    rating: 5,
-  },
-  {
-    name: "Kavindi & Ruwan",
-    country: "Sri Lanka",
-    quote:
-      "Had our engagement photoshoot in the garden. The staff let us use the grounds all afternoon and the organic food afterward was excellent.",
-    rating: 5,
   },
 ];
 

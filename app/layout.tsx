@@ -24,7 +24,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: "Nobel Regency Hotel | Best Hotel in Bibile, Sri Lanka",
   description:
-    "A charming garden bungalow hotel in Bibile, Sri Lanka — antique-filled rooms, a 2-acre organic garden, a family cottage, and a 15-acre meditation retreat, close to Bibile Bubula and Maduru Oya National Park.",
+    "A garden guest house in Bibile, Sri Lanka, 46 km from Maduru Oya National Park — antique-filled rooms, a 2-acre organic garden, a family cottage, and a 15-acre meditation retreat. Daily continental, Asian, and vegetarian breakfast options.",
   keywords: HOTEL.seoKeywords,
   openGraph: {
     title: "Nobel Regency Hotel — Bibile, Sri Lanka",
