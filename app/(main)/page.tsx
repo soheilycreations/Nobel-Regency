@@ -5,7 +5,7 @@ import BookingWidget from "@/components/ui/BookingWidget";
 import RoomCard from "@/components/ui/RoomCard";
 import TourCard from "@/components/ui/TourCard";
 import { getRooms, getTours } from "@/lib/supabase";
-import { Leaf, Dumbbell, Sparkles, Camera, HeartHandshake, Gem, Car } from "lucide-react";
+import { Leaf, Dumbbell, Sparkles, Camera, HeartHandshake, Gem, Car, UtensilsCrossed } from "lucide-react";
 
 // Heavy / below-the-fold components are code-split to keep initial load fast on mobile.
 const LocalMap = dynamic(() => import("@/components/ui/LocalMap"), {
@@ -19,6 +19,7 @@ const Testimonials = dynamic(() => import("@/components/ui/Testimonials"), {
 });
 
 const AMENITIES = [
+  { icon: UtensilsCrossed, label: "Restaurant — Sri Lankan Meals" },
   { icon: Leaf, label: "Organic Garden & Food" },
   { icon: Gem, label: "Antique Collection" },
   { icon: Dumbbell, label: "On-site Gym" },

@@ -382,10 +382,19 @@ export default function BookingForm() {
             ) : (
               <>
                 <p className="text-xs leading-relaxed text-white/40">
-                  PayPal doesn't support LKR, so this charges approximately{" "}
-                  <span className="text-gold">USD {lkrToUsd(total).toFixed(2)}</span> (today's rough
-                  conversion) instead of the LKR total above. Your reservation is confirmed
-                  automatically once payment goes through.
+                  {room.currency === "USD" ? (
+                    <>
+                      You'll be charged <span className="text-gold">USD {total.toFixed(2)}</span> via
+                      PayPal. Your reservation is confirmed automatically once payment goes through.
+                    </>
+                  ) : (
+                    <>
+                      PayPal doesn't support {room.currency}, so this charges approximately{" "}
+                      <span className="text-gold">USD {lkrToUsd(total).toFixed(2)}</span> (today's rough
+                      conversion) instead of the {room.currency} total above. Your reservation is
+                      confirmed automatically once payment goes through.
+                    </>
+                  )}
                 </p>
                 <PayPalButton
                   booking={{

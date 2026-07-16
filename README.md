@@ -37,6 +37,27 @@ PayPal working, follow the setup steps below.
   schema, Row Level Security policies, and a trigger that prevents
   overbooking a room type across its multiple physical units.
 
+## Rooms are now your real pricing (USD)
+
+Replaced the placeholder LKR rooms with the 4 real rooms and prices you gave:
+AC Deluxe Room (USD 22), AC Room (USD 20), Family Room (USD 20, 4 beds),
+Cabana Nature Stay (USD 32). Since PayPal doesn't accept LKR anyway, this
+also means PayPal checkout no longer needs an approximate currency
+conversion — it charges the real USD price directly.
+
+A few things weren't specified and I filled in reasonably — worth checking
+in `/admin/rooms` and correcting if wrong:
+- **Guest capacity** for AC Room and Cabana Nature Stay (assumed 2 each).
+- **Unit counts** (how many of each room physically exist) — assumed 2 for
+  AC Deluxe Room and AC Room, 1 for Family Room and Cabana Nature Stay.
+- **Bed type** for everything except Family Room (which you said has 4 beds).
+
+Also added: **Restaurant** (Sri Lankan meals, breakfast & dinner) as a
+homepage amenity, and replaced two speculative Gal-Oya-related placeholder
+tours with your confirmed **Gal Oya Experience Package** (nature attractions,
+local culture, sightseeing support) — kept Dunhinda Falls and Maduru Oya
+Safari as still-placeholder since those weren't part of what you sent.
+
 ## Setup steps
 
 ### 1. Supabase (database + auth + storage)

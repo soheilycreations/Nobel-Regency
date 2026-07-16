@@ -12,8 +12,11 @@ export async function POST(req: Request) {
 
     const nights = nightsBetween(checkIn, checkOut);
     const nightlyRate = room.pricePerNight + (acRequested && room.acSurchargePerNight ? room.acSurchargePerNight : 0);
-    const totalLkr = nights * nightlyRate;
-    const totalUsd = lkrToUsd(totalLkr);
+    const total = nights * nightlyRate;
+    // Rooms are priced in USD directly. lkrToUsd is only applied as a fallback
+    // for any room priced in LKR (e.g. one added later via /admin) — PayPal
+    // itself doesn't accept LKR as a checkout currency.
+    const totalUsd = room.currency === "USD" ? total : lkrToUsd(total);
 
     if (totalUsd <= 0) {
       return NextResponse.json({ error: "Invalid amount" }, { status: 400 });
@@ -21,7 +24,7 @@ export async function POST(req: Request) {
 
     const order = await createPayPalOrder(totalUsd, `${room.name} — ${nights} night(s), Nobel Regency Hotel`);
 
-    return NextResponse.json({ orderId: order.id, totalUsd, totalLkr });
+    return NextResponse.json({ orderId: order.id, totalUsd });
   } catch (err) {
     console.error("PayPal create-order failed:", err);
     return NextResponse.json({ error: "Could not create PayPal order" }, { status: 500 });

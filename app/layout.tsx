@@ -53,7 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       longitude: HOTEL.coordinates.lng,
     },
     sameAs: [HOTEL.facebookUrl, HOTEL.bookingComUrl],
-    priceRange: "LKR 8,500 - LKR 15,500",
+    priceRange: "USD 20 - USD 32",
   };
 
   return (
