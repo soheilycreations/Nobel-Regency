@@ -97,7 +97,17 @@ export async function getRooms(): Promise<Room[]> {
 export async function getRoomBySlugRemote(slug: string): Promise<Room | undefined> {
   if (!isSupabaseConfigured) return SEED_ROOMS.find((r) => r.slug === slug);
   const { data, error } = await supabase.from("rooms").select("*").eq("slug", slug).maybeSingle();
-  if (error || !data) return SEED_ROOMS.find((r) => r.slug === slug);
+  if (error || !data) {
+    if (error) {
+      console.error(
+        `getRoomBySlugRemote("${slug}") failed — falling back to seed data. This usually means there` +
+          ` are DUPLICATE rows with this slug in the rooms table (e.g. from re-running schema.sql after` +
+          ` room names changed). Check with: select slug, count(*) from rooms group by slug having count(*) > 1;`,
+        error.message
+      );
+    }
+    return SEED_ROOMS.find((r) => r.slug === slug);
+  }
   return rowToRoom(data);
 }
 
@@ -162,7 +172,17 @@ export async function getTours(): Promise<Tour[]> {
 export async function getTourBySlugRemote(slug: string): Promise<Tour | undefined> {
   if (!isSupabaseConfigured) return SEED_TOURS.find((t) => t.slug === slug);
   const { data, error } = await supabase.from("tours").select("*").eq("slug", slug).maybeSingle();
-  if (error || !data) return SEED_TOURS.find((t) => t.slug === slug);
+  if (error || !data) {
+    if (error) {
+      console.error(
+        `getTourBySlugRemote("${slug}") failed — falling back to seed data. This usually means there` +
+          ` are DUPLICATE rows with this slug in the tours table. Check with:` +
+          ` select slug, count(*) from tours group by slug having count(*) > 1;`,
+        error.message
+      );
+    }
+    return SEED_TOURS.find((t) => t.slug === slug);
+  }
   return rowToTour(data);
 }
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { Plus, Pencil, Trash2, Loader2, X } from "lucide-react";
 import { getRooms, upsertRoom, deleteRoom } from "@/lib/supabase";
 import { formatPrice } from "@/lib/utils";
@@ -22,6 +23,12 @@ const BLANK_ROOM: Room = {
   images: [],
   amenities: [],
 };
+
+function duplicateSlugCount(rooms: Room[]): number {
+  const counts = new Map<string, number>();
+  for (const r of rooms) counts.set(r.slug, (counts.get(r.slug) ?? 0) + 1);
+  return [...counts.values()].filter((c) => c > 1).length;
+}
 
 export default function AdminRoomsPage() {
   const [rooms, setRooms] = useState<Room[] | null>(null);
@@ -72,16 +79,33 @@ export default function AdminRoomsPage() {
 
       <div className="mt-6 space-y-3">
         {!rooms && <Loader2 className="animate-spin text-gold" size={24} />}
+        {rooms && duplicateSlugCount(rooms) > 0 && (
+          <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-xs text-red-300">
+            Warning: {duplicateSlugCount(rooms)} duplicate slug(s) found in the rooms table — likely
+            leftover rows from an earlier setup. This can cause edits to silently not show up on the
+            site. Check with SQL: <code>select slug, count(*) from rooms group by slug having count(*) &gt; 1;</code>
+          </p>
+        )}
         {rooms?.map((room) => (
           <div
-            key={room.slug}
+            key={room.id ?? room.slug}
             className="flex items-center justify-between rounded-xl border border-white/10 bg-charcoal-soft p-4"
           >
-            <div>
-              <p className="text-sm font-medium text-white">{room.name}</p>
-              <p className="text-xs text-white/40">
-                {room.location} · {formatPrice(room.pricePerNight, room.currency)}/night · {room.totalUnits} unit(s)
-              </p>
+            <div className="flex items-center gap-3">
+              <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-charcoal">
+                {room.images[0] ? (
+                  <Image src={room.images[0]} alt={room.name} fill className="object-cover" />
+                ) : (
+                  <div className="flex h-full items-center justify-center text-[9px] text-white/30">No photo</div>
+                )}
+              </div>
+              <div>
+                <p className="text-sm font-medium text-white">{room.name}</p>
+                <p className="text-xs text-white/40">
+                  {room.location} · {formatPrice(room.pricePerNight, room.currency)}/night · {room.totalUnits} unit(s)
+                </p>
+                <p className="text-[10px] text-white/25">slug: {room.slug} · {room.images.length} photo(s)</p>
+              </div>
             </div>
             <div className="flex gap-2">
               <button

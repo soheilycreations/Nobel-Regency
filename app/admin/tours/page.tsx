@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { Plus, Pencil, Trash2, Loader2, X } from "lucide-react";
 import { getTours, upsertTour, deleteTour } from "@/lib/supabase";
 import type { Tour } from "@/types";
@@ -16,6 +17,12 @@ const BLANK_TOUR: Tour = {
   images: [],
   highlights: [],
 };
+
+function duplicateSlugCount(tours: Tour[]): number {
+  const counts = new Map<string, number>();
+  for (const t of tours) counts.set(t.slug, (counts.get(t.slug) ?? 0) + 1);
+  return [...counts.values()].filter((c) => c > 1).length;
+}
 
 export default function AdminToursPage() {
   const [tours, setTours] = useState<Tour[] | null>(null);
@@ -66,16 +73,33 @@ export default function AdminToursPage() {
 
       <div className="mt-6 space-y-3">
         {!tours && <Loader2 className="animate-spin text-gold" size={24} />}
+        {tours && duplicateSlugCount(tours) > 0 && (
+          <p className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-2.5 text-xs text-red-300">
+            Warning: {duplicateSlugCount(tours)} duplicate slug(s) found in the tours table — likely
+            leftover rows from an earlier setup. This can cause edits to silently not show up on the
+            site. Check with SQL: <code>select slug, count(*) from tours group by slug having count(*) &gt; 1;</code>
+          </p>
+        )}
         {tours?.map((tour) => (
           <div
-            key={tour.slug}
+            key={tour.id ?? tour.slug}
             className="flex items-center justify-between rounded-xl border border-white/10 bg-charcoal-soft p-4"
           >
-            <div>
-              <p className="text-sm font-medium text-white">{tour.name}</p>
-              <p className="text-xs text-white/40">
-                {tour.durationLabel} · {tour.priceLabel}
-              </p>
+            <div className="flex items-center gap-3">
+              <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-charcoal">
+                {tour.images[0] ? (
+                  <Image src={tour.images[0]} alt={tour.name} fill className="object-cover" />
+                ) : (
+                  <div className="flex h-full items-center justify-center text-[9px] text-white/30">No photo</div>
+                )}
+              </div>
+              <div>
+                <p className="text-sm font-medium text-white">{tour.name}</p>
+                <p className="text-xs text-white/40">
+                  {tour.durationLabel} · {tour.priceLabel}
+                </p>
+                <p className="text-[10px] text-white/25">slug: {tour.slug} · {tour.images.length} photo(s)</p>
+              </div>
             </div>
             <div className="flex gap-2">
               <button
