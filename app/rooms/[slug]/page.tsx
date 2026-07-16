@@ -2,14 +2,11 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ROOMS } from "@/lib/rooms-data";
 import { getRoomBySlugRemote } from "@/lib/supabase";
 import { formatPrice } from "@/lib/utils";
 import { Check } from "lucide-react";
 
-export function generateStaticParams() {
-  return ROOMS.map((room) => ({ slug: room.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const room = await getRoomBySlugRemote(params.slug);

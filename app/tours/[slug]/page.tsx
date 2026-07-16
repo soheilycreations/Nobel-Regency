@@ -2,13 +2,10 @@ import { notFound } from "next/navigation";
 import Image from "next/image";
 import type { Metadata } from "next";
 import { Check, Clock, Tag } from "lucide-react";
-import { TOURS } from "@/lib/tours-data";
 import { getTourBySlugRemote } from "@/lib/supabase";
 import { HOTEL } from "@/lib/rooms-data";
 
-export function generateStaticParams() {
-  return TOURS.map((tour) => ({ slug: tour.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const tour = await getTourBySlugRemote(params.slug);

@@ -1,4 +1,4 @@
-import dynamic from "next/dynamic";
+import nextDynamic from "next/dynamic";
 import Link from "next/link";
 import HeroSlider from "@/components/ui/HeroSlider";
 import BookingWidget from "@/components/ui/BookingWidget";
@@ -7,14 +7,19 @@ import TourCard from "@/components/ui/TourCard";
 import { getRooms, getTours } from "@/lib/supabase";
 import { Leaf, Dumbbell, Sparkles, Camera, HeartHandshake, Gem, Car, UtensilsCrossed } from "lucide-react";
 
+// Without this, Next.js treats this page as static and bakes in whatever
+// rooms/tours data existed at the last build/deploy — admin panel edits
+// (new photos, price changes, etc.) wouldn't show up until the next deploy.
+export const dynamic = "force-dynamic";
+
 // Heavy / below-the-fold components are code-split to keep initial load fast on mobile.
-const LocalMap = dynamic(() => import("@/components/ui/LocalMap"), {
+const LocalMap = nextDynamic(() => import("@/components/ui/LocalMap"), {
   loading: () => <div className="h-96 animate-pulse bg-charcoal-soft" />,
 });
-const LifeGallery = dynamic(() => import("@/components/ui/LifeGallery"), {
+const LifeGallery = nextDynamic(() => import("@/components/ui/LifeGallery"), {
   loading: () => <div className="h-64 animate-pulse bg-charcoal-soft" />,
 });
-const Testimonials = dynamic(() => import("@/components/ui/Testimonials"), {
+const Testimonials = nextDynamic(() => import("@/components/ui/Testimonials"), {
   loading: () => <div className="h-64 animate-pulse bg-charcoal-soft" />,
 });
 

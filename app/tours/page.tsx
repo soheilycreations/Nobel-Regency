@@ -1,6 +1,8 @@
 import TourCard from "@/components/ui/TourCard";
 import { getTours } from "@/lib/supabase";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "Tours & Experiences | Nobel Regency Hotel, Bibile",
   description: "Guided tours near Nobel Regency Hotel in Bibile — Gal Oya boat safari, Vedda village walks, Dunhinda Falls, and Maduru Oya National Park.",
