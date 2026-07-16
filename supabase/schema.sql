@@ -177,3 +177,36 @@ insert into tours (slug, name, tagline, description, duration_label, price_label
   ('dunhinda-falls-day-trip', 'Dunhinda Falls Day Trip', 'One of Sri Lanka''s best-known waterfalls, a short drive away', 'Dunhinda Falls is one of the most-visited waterfalls in Sri Lanka, reached via a short forest walk from the car park. Pairs well with a stop in Mahiyangana.', 'Half day', 'Contact for pricing', '["/photos/rustic-garden-seating.jpg"]', '["Short forest walk to the falls","Can be combined with Mahiyangana","Good for all fitness levels"]', false),
   ('maduru-oya-safari', 'Maduru Oya National Park Safari', 'A jeep safari through one of the island''s larger national parks', 'A jeep safari through Maduru Oya National Park, home to elephants, deer, and a wide range of birdlife.', 'Half day', 'Contact for pricing', '["/photos/banana-leaf-couple.jpg"]', '["Jeep safari","Elephants and diverse wildlife","Experienced local guides"]', false)
 on conflict (slug) do nothing;
+
+-- ============================================================
+-- Storage policies for the property-photos bucket
+-- ============================================================
+-- A bucket set to "Public" in the dashboard only controls whether photos can
+-- be VIEWED without auth — it does NOT grant permission to upload, update,
+-- or delete. Storage has its own Row Level Security on storage.objects,
+-- separate from the RLS on your tables above. Without these policies,
+-- authenticated admin uploads fail with "new row violates row-level
+-- security policy" even though you're logged in.
+--
+-- Run this AFTER creating the property-photos bucket in the dashboard
+-- (Storage → New Bucket → name it exactly "property-photos" → Public).
+
+create policy "Public can view property-photos"
+on storage.objects for select
+to public
+using (bucket_id = 'property-photos');
+
+create policy "Authenticated can upload property-photos"
+on storage.objects for insert
+to authenticated
+with check (bucket_id = 'property-photos');
+
+create policy "Authenticated can update property-photos"
+on storage.objects for update
+to authenticated
+using (bucket_id = 'property-photos');
+
+create policy "Authenticated can delete property-photos"
+on storage.objects for delete
+to authenticated
+using (bucket_id = 'property-photos');

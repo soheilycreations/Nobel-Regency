@@ -68,15 +68,21 @@ Safari as still-placeholder since those weren't part of what you sent.
    the current rooms/tours.
 3. Storage → New Bucket → name it `property-photos`, set it **Public**.
    (Buckets can't be created via SQL, only the dashboard or Storage API.)
-4. Authentication → Users → Add User, once per staff member who needs admin
+4. Back in the SQL Editor, run the storage policies block at the bottom of
+   `schema.sql` (the `create policy ... on storage.objects` statements).
+   **This step is easy to miss** — a "Public" bucket only controls who can
+   *view* photos, not who can upload them. Skipping this gives you "new row
+   violates row-level security policy" the first time you try to upload a
+   photo in `/admin`, even while logged in correctly.
+5. Authentication → Users → Add User, once per staff member who needs admin
    access. Email + password — that's the login for `/admin`. There's no
    other way to create an account, which is intentional.
-5. Copy your Project URL and anon key into `.env.local`:
+6. Copy your Project URL and anon key into `.env.local`:
    ```
    NEXT_PUBLIC_SUPABASE_URL=...
    NEXT_PUBLIC_SUPABASE_ANON_KEY=...
    ```
-6. Project Settings → API → service_role key → also into `.env.local` as
+7. Project Settings → API → service_role key → also into `.env.local` as
    `SUPABASE_SERVICE_ROLE_KEY`. This one is server-only and bypasses Row
    Level Security — it's what lets a guest's PayPal payment confirm their
    own booking without needing to log in. Never expose it to the browser.
