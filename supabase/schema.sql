@@ -83,37 +83,47 @@ alter table locations add column if not exists featured boolean not null default
 -- one — without it, duplicate slugs are possible and things silently break
 -- in inconsistent ways depending on which duplicate a given query happens
 -- to read).
+--
+-- IMPORTANT: this is wrapped so a failure here (e.g. duplicates already
+-- exist) can NEVER abort the rest of the script. If it ran as part of one
+-- big transaction and this raised an uncaught exception, everything above
+-- it — including the CREATE TABLE statements — would roll back too, which
+-- would explain a "table does not exist" error even though this file
+-- clearly creates it.
 do $$
 begin
-  if not exists (
-    select 1 from pg_constraint where conname = 'rooms_slug_key'
-  ) then
-    -- If duplicates already exist, this will fail with a clear error naming
-    -- the constraint — in that case, run the dedup query further down
-    -- first, then re-run this block.
-    alter table rooms add constraint rooms_slug_key unique (slug);
-  end if;
+  begin
+    if not exists (select 1 from pg_constraint where conname = 'rooms_slug_key') then
+      alter table rooms add constraint rooms_slug_key unique (slug);
+    end if;
+  exception when others then
+    raise notice 'Could not add unique constraint on rooms.slug (likely duplicate slugs already exist): %', sqlerrm;
+  end;
 
-  if not exists (
-    select 1 from pg_constraint where conname = 'tours_slug_key'
-  ) then
-    alter table tours add constraint tours_slug_key unique (slug);
-  end if;
+  begin
+    if not exists (select 1 from pg_constraint where conname = 'tours_slug_key') then
+      alter table tours add constraint tours_slug_key unique (slug);
+    end if;
+  exception when others then
+    raise notice 'Could not add unique constraint on tours.slug (likely duplicate slugs already exist): %', sqlerrm;
+  end;
 
-  if not exists (
-    select 1 from pg_constraint where conname = 'locations_slug_key'
-  ) then
-    alter table locations add constraint locations_slug_key unique (slug);
-  end if;
+  begin
+    if not exists (select 1 from pg_constraint where conname = 'locations_slug_key') then
+      alter table locations add constraint locations_slug_key unique (slug);
+    end if;
+  exception when others then
+    raise notice 'Could not add unique constraint on locations.slug: %', sqlerrm;
+  end;
 end $$;
 
--- If the constraint above failed because duplicates already exist, find them:
+-- If the notices above appeared, duplicates already exist. Find them:
 --   select slug, count(*), array_agg(id) from rooms group by slug having count(*) > 1;
 --   select slug, count(*), array_agg(id) from tours group by slug having count(*) > 1;
 --   select slug, count(*), array_agg(id) from locations group by slug having count(*) > 1;
 -- Then delete the unwanted duplicate id(s) — easiest via /admin/rooms or
--- /admin/tours (which now shows a warning banner if duplicates exist) —
--- and re-run this file.
+-- /admin/tours (which shows a warning banner if duplicates exist) — and
+-- re-run this file so the constraint actually gets added.
 
 create table if not exists bookings (
   id uuid primary key default gen_random_uuid(),
@@ -300,3 +310,13 @@ create policy "Authenticated can delete property-photos"
 on storage.objects for delete
 to authenticated
 using (bucket_id = 'property-photos');
+
+-- ============================================================
+-- Force PostgREST to pick up schema changes immediately
+-- ============================================================
+-- After creating a new table, the API layer (PostgREST) sometimes takes a
+-- little while to notice it — this shows up in the app as an error like
+-- "Could not find the table 'public.locations' in the schema cache" even
+-- though the table clearly exists. This forces an immediate refresh instead
+-- of waiting for it to happen automatically.
+notify pgrst, 'reload schema';
