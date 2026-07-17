@@ -36,6 +36,85 @@ create table if not exists tours (
   created_at timestamptz default now()
 );
 
+create table if not exists locations (
+  id uuid primary key default gen_random_uuid(),
+  slug text unique not null,
+  name text not null,
+  tagline text not null default '',
+  description text not null default '',
+  distance_label text not null default '',
+  images jsonb not null default '[]'::jsonb,
+  highlights jsonb not null default '[]'::jsonb,
+  featured boolean not null default false,
+  created_at timestamptz default now()
+);
+
+-- ============================================================
+-- Repair block — safe to run repeatedly, on brand-new or already-existing
+-- tables alike.
+-- ============================================================
+-- "create table if not exists" only runs when the table doesn't exist yet.
+-- If your rooms/tours tables were created by an EARLIER version of this
+-- file (before some of the columns/constraints above existed), simply
+-- re-running the block above does nothing — it silently skips, since the
+-- table already exists. That means any table created early on could be
+-- missing newer columns, or missing the UNIQUE constraint on slug — which
+-- allows genuine duplicate-slug rows and causes exactly the kind of
+-- inconsistent-data-between-pages behavior you've been seeing. This block
+-- retroactively brings any existing table up to the current expected shape.
+
+alter table rooms add column if not exists location text not null default '';
+alter table rooms add column if not exists tagline text not null default '';
+alter table rooms add column if not exists description text not null default '';
+alter table rooms add column if not exists ac_surcharge_per_night numeric;
+alter table rooms add column if not exists has_ac_option boolean not null default false;
+alter table rooms add column if not exists currency text not null default 'LKR';
+alter table rooms add column if not exists size_sqm numeric;
+alter table rooms add column if not exists bed_type text not null default '';
+alter table rooms add column if not exists amenities jsonb not null default '[]'::jsonb;
+alter table rooms add column if not exists featured boolean not null default false;
+
+alter table tours add column if not exists highlights jsonb not null default '[]'::jsonb;
+alter table tours add column if not exists featured boolean not null default false;
+
+alter table locations add column if not exists featured boolean not null default false;
+
+-- Add the unique constraint on slug if it's missing (this is the important
+-- one — without it, duplicate slugs are possible and things silently break
+-- in inconsistent ways depending on which duplicate a given query happens
+-- to read).
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint where conname = 'rooms_slug_key'
+  ) then
+    -- If duplicates already exist, this will fail with a clear error naming
+    -- the constraint — in that case, run the dedup query further down
+    -- first, then re-run this block.
+    alter table rooms add constraint rooms_slug_key unique (slug);
+  end if;
+
+  if not exists (
+    select 1 from pg_constraint where conname = 'tours_slug_key'
+  ) then
+    alter table tours add constraint tours_slug_key unique (slug);
+  end if;
+
+  if not exists (
+    select 1 from pg_constraint where conname = 'locations_slug_key'
+  ) then
+    alter table locations add constraint locations_slug_key unique (slug);
+  end if;
+end $$;
+
+-- If the constraint above failed because duplicates already exist, find them:
+--   select slug, count(*), array_agg(id) from rooms group by slug having count(*) > 1;
+--   select slug, count(*), array_agg(id) from tours group by slug having count(*) > 1;
+--   select slug, count(*), array_agg(id) from locations group by slug having count(*) > 1;
+-- Then delete the unwanted duplicate id(s) — easiest via /admin/rooms or
+-- /admin/tours (which now shows a warning banner if duplicates exist) —
+-- and re-run this file.
+
 create table if not exists bookings (
   id uuid primary key default gen_random_uuid(),
   room_slug text not null references rooms(slug),
@@ -131,15 +210,19 @@ $$;
 
 alter table rooms enable row level security;
 alter table tours enable row level security;
+alter table locations enable row level security;
 alter table bookings enable row level security;
 
 create policy "Public can read rooms" on rooms for select using (true);
 create policy "Public can read tours" on tours for select using (true);
+create policy "Public can read locations" on locations for select using (true);
 create policy "Public can create bookings" on bookings for insert with check (true);
 
 create policy "Admins can manage rooms" on rooms for all
   using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
 create policy "Admins can manage tours" on tours for all
+  using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
+create policy "Admins can manage locations" on locations for all
   using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
 create policy "Admins can read bookings" on bookings for select
   using (auth.role() = 'authenticated');
@@ -176,6 +259,13 @@ insert into tours (slug, name, tagline, description, duration_label, price_label
   ('gal-oya-experience-package', 'Gal Oya Experience Package', 'Sri Lanka''s only boat safari — elephants swimming between islands', 'Gal Oya National Park, near Inginiyagala, is the one national park in Sri Lanka where safaris happen by boat rather than jeep. On the Senanayake Samudra reservoir, guides watch for elephants swimming between islands, alongside crocodiles, deer, and rich birdlife — best in the dry season (roughly March-September). The area is also home to the Vedda, Sri Lanka''s indigenous forest-dwelling community. Boat safaris are booked through the Gal Oya Wildlife Department office in Inginiyagala; we arrange this directly for guests.', 'Half day (boat safari typically ~2 hours)', 'Contact for pricing', '["/photos/garden-sunflare.jpg"]', '["Boat safari on Senanayake Samudra reservoir","Chance to see swimming elephants","Vedda indigenous community nearby","Sightseeing support arranged by the hotel"]', true),
   ('dunhinda-falls-day-trip', 'Dunhinda Falls Day Trip', 'One of Sri Lanka''s best-known waterfalls, a short drive away', 'Dunhinda Falls is one of the most-visited waterfalls in Sri Lanka, reached via a short forest walk from the car park. Pairs well with a stop in Mahiyangana.', 'Half day', 'Contact for pricing', '["/photos/rustic-garden-seating.jpg"]', '["Short forest walk to the falls","Can be combined with Mahiyangana","Good for all fitness levels"]', false),
   ('maduru-oya-safari', 'Maduru Oya National Park Safari', 'A jeep safari through one of the island''s larger national parks', 'A jeep safari through Maduru Oya National Park, home to elephants, deer, and a wide range of birdlife.', 'Half day', 'Contact for pricing', '["/photos/banana-leaf-couple.jpg"]', '["Jeep safari","Elephants and diverse wildlife","Experienced local guides"]', false)
+on conflict (slug) do nothing;
+
+insert into locations (slug, name, tagline, description, distance_label, images, highlights, featured) values
+  ('maduru-oya-national-park', 'Maduru Oya National Park', 'A jeep safari through one of Sri Lanka''s larger national parks', 'Maduru Oya National Park is about 46 km from Nobel Regency Hotel, home to elephants, deer, and a wide range of birdlife. A good option for guests who want a traditional jeep safari experience.', '46 km from the hotel', '["/photos/banana-leaf-couple.jpg"]', '["Elephants and diverse wildlife","Jeep safari","Half-day trip"]', true),
+  ('dunhinda-falls', 'Dunhinda Falls', 'One of Sri Lanka''s best-known waterfalls', 'Dunhinda Falls, roughly 24 km from the hotel, is one of the most-visited waterfalls in Sri Lanka, reached via a short forest walk from the car park. Pairs well with a stop in Mahiyangana on the way.', '24 km from the hotel', '["/photos/rustic-garden-seating.jpg"]', '["Short forest walk to the falls","Can be combined with Mahiyangana","Good for all fitness levels"]', true),
+  ('bibile-bubula-natural-springs', 'Bibile Bubula Natural Springs', 'A natural spring right in Bibile town', 'Bibile Bubula is a natural spring a few kilometres from the hotel, a quiet, local spot rather than a tourist attraction — worth a stop if you''re exploring Bibile itself.', '~3 km from the hotel', '["/photos/garden-path-flowers.jpg"]', '["Natural spring","Close to town centre"]', false),
+  ('mahiyangana-raja-maha-vihara', 'Mahiyangana Raja Maha Vihara', 'One of Sri Lanka''s most sacred Buddhist temples', 'Mahiyangana Raja Maha Vihara, about 39 km from the hotel, is one of the sixteen most sacred Buddhist sites in Sri Lanka (Solosmasthana), said to mark the Buddha''s first visit to the island.', '39 km from the hotel', '["/photos/garden-sunflare.jpg"]', '["Sacred Buddhist site","Historic architecture","Combine with Dunhinda Falls"]', false)
 on conflict (slug) do nothing;
 
 -- ============================================================

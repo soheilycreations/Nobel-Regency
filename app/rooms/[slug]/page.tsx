@@ -54,6 +54,24 @@ export default async function RoomPage({ params }: { params: { slug: string } })
           </div>
         </div>
 
+        {room.images.length > 3 && (
+          <div className="mt-4">
+            <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5">
+              {room.images.slice(3).map((src, i) => (
+                <div key={src} className="relative aspect-square overflow-hidden rounded-xl">
+                  <Image
+                    src={src}
+                    alt={`${room.name} photo ${i + 4}`}
+                    fill
+                    sizes="(max-width: 768px) 33vw, 20vw"
+                    className="object-cover transition-transform hover:scale-105"
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="mt-10 grid gap-10 md:grid-cols-3">
           <div className="md:col-span-2">
             <p className="text-xs uppercase tracking-[0.3em] text-gold">

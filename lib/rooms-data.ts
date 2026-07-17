@@ -21,15 +21,10 @@ export const HOTEL = {
     "Bibile honeymoon hotel",
     "meditation retreat Uva Sri Lanka",
   ],
-  // Maduru Oya and Dunhinda Falls distances are from the property's own
-  // Booking.com listing. Bibile Bubula and Mahiyangana are from general web
-  // sources, not the property listing itself — worth double-checking.
-  nearbyAttractions: [
-    { name: "Maduru Oya National Park", distanceKm: 46 },
-    { name: "Dunhinda Falls", distanceKm: 24 },
-    { name: "Bibile Bubula Natural Springs", distanceKm: 3 },
-    { name: "Mahiyangana Raja Maha Vihara", distanceKm: 39 },
-  ],
+  // Nearby attractions moved to the admin-manageable `locations` table —
+  // see lib/locations-data.ts for the seed content and /admin/locations to
+  // edit. This gives each place its own page (better for SEO) instead of a
+  // hardcoded list here.
 };
 
 export const ROOMS: Room[] = [

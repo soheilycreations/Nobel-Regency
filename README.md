@@ -4,6 +4,22 @@ A mobile-first booking site for a garden bungalow hotel in Bibile, Sri Lanka.
 Next.js 14 (App Router), Tailwind CSS, Framer Motion, TanStack Query, React
 Hook Form + Zod, Supabase (database, auth, storage), and PayPal.
 
+## ⚠️ Action required if you already have a live Supabase project
+
+Re-run the **entire** `supabase/schema.sql` file in the SQL editor, even if
+you've run earlier versions before. It now includes a repair block that
+retroactively adds any columns/constraints your existing tables might be
+missing — importantly, the `unique` constraint on `slug`, which earlier
+versions of this file could silently fail to apply to an already-existing
+table (`create table if not exists` does nothing if the table already
+exists — it does NOT add new columns or constraints to it). Without that
+constraint, duplicate-slug rows are possible, which causes exactly the kind
+of "works on one page, not on another" inconsistency you may have seen.
+
+If the repair block reports the constraint can't be added because
+duplicates already exist, check `/admin/rooms` and `/admin/tours` (they'll
+show a warning banner) and delete the extras there, then re-run the file.
+
 ## Getting started
 
 ```bash

@@ -18,6 +18,18 @@ export interface Room {
   featured?: boolean;
 }
 
+export interface Location {
+  id?: string;
+  slug: string;
+  name: string;
+  tagline: string;
+  description: string;
+  distanceLabel: string;
+  images: string[];
+  highlights: string[];
+  featured?: boolean;
+}
+
 export interface Tour {
   id?: string;
   slug: string;

@@ -25,7 +25,7 @@ export default async function ToursPage() {
         </div>
         <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-6">
           {tours.map((tour, i) => (
-            <TourCard key={tour.slug} tour={tour} index={i} />
+            <TourCard key={tour.id ?? tour.slug} tour={tour} index={i} />
           ))}
         </div>
       </div>

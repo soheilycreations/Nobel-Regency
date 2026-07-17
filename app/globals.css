@@ -74,6 +74,15 @@ body::before {
   border-radius: 8px;
 }
 
+/* Hides scrollbar for horizontal carousels while keeping touch/wheel scroll */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.001ms !important;

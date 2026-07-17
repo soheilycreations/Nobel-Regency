@@ -1,7 +1,8 @@
 import { createClient } from "@supabase/supabase-js";
-import type { AvailabilityResult, BookingRequest, BookingRecord, Room, Tour } from "@/types";
+import type { AvailabilityResult, BookingRequest, BookingRecord, Room, Tour, Location } from "@/types";
 import { ROOMS as SEED_ROOMS } from "@/lib/rooms-data";
 import { TOURS as SEED_TOURS } from "@/lib/tours-data";
+import { LOCATIONS as SEED_LOCATIONS } from "@/lib/locations-data";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
@@ -225,6 +226,89 @@ export async function deleteTour(slug: string) {
 }
 
 /* ------------------------------------------------------------------ */
+/* Locations (public read, admin write)                                 */
+/* ------------------------------------------------------------------ */
+
+function rowToLocation(row: any): Location {
+  return {
+    id: row.id,
+    slug: row.slug,
+    name: row.name,
+    tagline: row.tagline,
+    description: row.description,
+    distanceLabel: row.distance_label,
+    images: row.images ?? [],
+    highlights: row.highlights ?? [],
+    featured: row.featured ?? false,
+  };
+}
+
+function locationToRow(location: Location) {
+  return {
+    slug: location.slug,
+    name: location.name,
+    tagline: location.tagline,
+    description: location.description,
+    distance_label: location.distanceLabel,
+    images: location.images,
+    highlights: location.highlights,
+    featured: location.featured ?? false,
+  };
+}
+
+export async function getLocations(): Promise<Location[]> {
+  if (!isSupabaseConfigured) return SEED_LOCATIONS;
+  try {
+    const { data, error } = await supabase.from("locations").select("*").order("name");
+    if (error || !data || data.length === 0) {
+      if (error) console.error("getLocations failed, using seed data:", error.message);
+      return SEED_LOCATIONS;
+    }
+    return data.map(rowToLocation);
+  } catch (err) {
+    console.error("getLocations threw, using seed data:", err);
+    return SEED_LOCATIONS;
+  }
+}
+
+export async function getLocationBySlugRemote(slug: string): Promise<Location | undefined> {
+  if (!isSupabaseConfigured) return SEED_LOCATIONS.find((l) => l.slug === slug);
+  try {
+    const { data, error } = await supabase.from("locations").select("*").eq("slug", slug).maybeSingle();
+    if (error || !data) {
+      if (error) {
+        console.error(
+          `getLocationBySlugRemote("${slug}") failed — falling back to seed data. This usually means` +
+            ` there are DUPLICATE rows with this slug in the locations table. Check with:` +
+            ` select slug, count(*) from locations group by slug having count(*) > 1;`,
+          error.message
+        );
+      }
+      return SEED_LOCATIONS.find((l) => l.slug === slug);
+    }
+    return rowToLocation(data);
+  } catch (err) {
+    console.error(`getLocationBySlugRemote("${slug}") threw, using seed data:`, err);
+    return SEED_LOCATIONS.find((l) => l.slug === slug);
+  }
+}
+
+export async function upsertLocation(location: Location) {
+  const { data, error } = await supabase
+    .from("locations")
+    .upsert(locationToRow(location), { onConflict: "slug" })
+    .select()
+    .single();
+  if (error) throw new Error(error.message);
+  return rowToLocation(data);
+}
+
+export async function deleteLocation(slug: string) {
+  const { error } = await supabase.from("locations").delete().eq("slug", slug);
+  if (error) throw new Error(error.message);
+}
+
+/* ------------------------------------------------------------------ */
 /* Photo uploads (Supabase Storage)                                    */
 /* ------------------------------------------------------------------ */
 
@@ -232,7 +316,7 @@ export async function deleteTour(slug: string) {
  * URL. The bucket must exist and be set to public read — see
  * supabase/schema.sql for the one-time setup note (buckets can't be created
  * via SQL, only via the dashboard or Storage API). */
-export async function uploadPhoto(file: File, folder: "rooms" | "tours"): Promise<string> {
+export async function uploadPhoto(file: File, folder: "rooms" | "tours" | "locations"): Promise<string> {
   const ext = file.name.split(".").pop();
   const path = `${folder}/${crypto.randomUUID()}.${ext}`;
   const { error } = await supabase.storage.from("property-photos").upload(path, file, {

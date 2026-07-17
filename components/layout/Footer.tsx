@@ -45,6 +45,7 @@ export default function Footer() {
           <ul className="space-y-1">
             <li><Link href="/#rooms" className="hover:text-gold">Rooms &amp; Suites</Link></li>
             <li><Link href="/tours" className="hover:text-gold">Tours &amp; Experiences</Link></li>
+            <li><Link href="/locations" className="hover:text-gold">Nearby Places</Link></li>
             <li><Link href="/booking" className="hover:text-gold">Book a Stay</Link></li>
             <li><Link href="/#amenities" className="hover:text-gold">Amenities</Link></li>
           </ul>

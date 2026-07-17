@@ -34,6 +34,22 @@ export default async function TourPage({ params }: { params: { slug: string } })
           )}
         </div>
 
+        {tour.images.length > 1 && (
+          <div className="mt-3 grid grid-cols-3 gap-3 sm:grid-cols-4">
+            {tour.images.slice(1).map((src, i) => (
+              <div key={src} className="relative aspect-square overflow-hidden rounded-xl">
+                <Image
+                  src={src}
+                  alt={`${tour.name} photo ${i + 2}`}
+                  fill
+                  sizes="(max-width: 768px) 33vw, 25vw"
+                  className="object-cover transition-transform hover:scale-105"
+                />
+              </div>
+            ))}
+          </div>
+        )}
+
         <div className="mt-8">
           <p className="text-xs uppercase tracking-[0.3em] text-gold">Tours & Experiences</p>
           <h1 className="mt-3 font-serif text-3xl text-white md:text-4xl">{tour.name}</h1>

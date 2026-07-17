@@ -4,7 +4,8 @@ import HeroSlider from "@/components/ui/HeroSlider";
 import BookingWidget from "@/components/ui/BookingWidget";
 import RoomCard from "@/components/ui/RoomCard";
 import TourCard from "@/components/ui/TourCard";
-import { getRooms, getTours } from "@/lib/supabase";
+import Carousel from "@/components/ui/Carousel";
+import { getRooms, getTours, getLocations } from "@/lib/supabase";
 import { Leaf, Dumbbell, Sparkles, Camera, HeartHandshake, Gem, Car, UtensilsCrossed } from "lucide-react";
 
 // Without this, Next.js treats this page as static and bakes in whatever
@@ -38,7 +39,7 @@ const AMENITIES = [
 // data if Supabase isn't configured or unreachable), so edits made in
 // /admin actually show up here.
 export default async function HomePage() {
-  const [rooms, tours] = await Promise.all([getRooms(), getTours()]);
+  const [rooms, tours, locations] = await Promise.all([getRooms(), getTours(), getLocations()]);
 
   return (
     <main className="overflow-x-hidden">
@@ -55,11 +56,13 @@ export default async function HomePage() {
             Suites Designed for Stillness
           </h2>
         </div>
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-6">
+        <Carousel>
           {rooms.map((room, i) => (
-            <RoomCard key={room.slug} room={room} index={i} />
+            <div key={room.id ?? room.slug} className="w-[280px] shrink-0 snap-start sm:w-[320px]">
+              <RoomCard room={room} index={i} />
+            </div>
           ))}
-        </div>
+        </Carousel>
       </section>
 
       <section id="amenities" className="bg-charcoal-deep px-5 py-24 md:px-10">
@@ -91,11 +94,13 @@ export default async function HomePage() {
             Explore Beyond the Garden
           </h2>
         </div>
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-6">
+        <Carousel>
           {tours.map((tour, i) => (
-            <TourCard key={tour.slug} tour={tour} index={i} />
+            <div key={tour.id ?? tour.slug} className="w-[280px] shrink-0 snap-start sm:w-[320px]">
+              <TourCard tour={tour} index={i} />
+            </div>
           ))}
-        </div>
+        </Carousel>
         <div className="mt-8 text-center">
           <Link
             href="/tours"
@@ -107,7 +112,7 @@ export default async function HomePage() {
       </section>
 
       <LifeGallery />
-      <LocalMap />
+      <LocalMap locations={locations} />
       <Testimonials />
     </main>
   );

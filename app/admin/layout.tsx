@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { Loader2, LayoutDashboard, BedDouble, Compass, CalendarCheck, LogOut, Menu, X } from "lucide-react";
+import { Loader2, LayoutDashboard, BedDouble, Compass, MapPin, CalendarCheck, LogOut, Menu, X } from "lucide-react";
 import { supabase, getSession, signOutAdmin } from "@/lib/supabase";
 import type { Session } from "@supabase/supabase-js";
 
@@ -11,6 +11,7 @@ const NAV = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
   { href: "/admin/rooms", label: "Rooms", icon: BedDouble },
   { href: "/admin/tours", label: "Tours", icon: Compass },
+  { href: "/admin/locations", label: "Locations", icon: MapPin },
   { href: "/admin/bookings", label: "Bookings", icon: CalendarCheck },
 ];
 
