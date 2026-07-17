@@ -70,7 +70,7 @@ export default async function HomePage() {
               Everything, Considered
             </h2>
           </div>
-          <div className="flex flex-wrap justify-center gap-6">
+          <div className="mx-auto flex max-w-[760px] flex-wrap justify-center gap-6">
             {AMENITIES.map(({ icon: Icon, label }) => (
               <div
                 key={label}

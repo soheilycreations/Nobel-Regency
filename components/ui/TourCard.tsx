@@ -15,14 +15,18 @@ export default function TourCard({ tour, index = 0 }: { tour: Tour; index?: numb
       transition={{ duration: 0.6, delay: index * 0.1 }}
       className="group gold-border overflow-hidden rounded-2xl bg-charcoal-soft"
     >
-      <div className="relative h-56 w-full overflow-hidden">
-        <Image
-          src={tour.images[0]}
-          alt={tour.name}
-          fill
-          sizes="(max-width: 768px) 100vw, 33vw"
-          className="object-cover transition-transform duration-700 group-hover:scale-105"
-        />
+      <div className="relative h-56 w-full overflow-hidden bg-charcoal">
+        {tour.images[0] ? (
+          <Image
+            src={tour.images[0]}
+            alt={tour.name}
+            fill
+            sizes="(max-width: 768px) 100vw, 33vw"
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center text-xs text-white/25">No photo yet</div>
+        )}
       </div>
       <div className="p-6">
         <h3 className="font-serif text-xl text-white">{tour.name}</h3>

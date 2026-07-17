@@ -26,8 +26,12 @@ export default async function TourPage({ params }: { params: { slug: string } })
   return (
     <main className="px-5 pb-24 pt-28 md:px-10 md:pt-32">
       <div className="mx-auto max-w-4xl">
-        <div className="relative h-72 overflow-hidden rounded-2xl md:h-96">
-          <Image src={tour.images[0]} alt={tour.name} fill priority sizes="100vw" className="object-cover" />
+        <div className="relative h-72 overflow-hidden rounded-2xl bg-charcoal-soft md:h-96">
+          {tour.images[0] ? (
+            <Image src={tour.images[0]} alt={tour.name} fill priority sizes="100vw" className="object-cover" />
+          ) : (
+            <div className="flex h-full items-center justify-center text-sm text-white/25">No photo yet</div>
+          )}
         </div>
 
         <div className="mt-8">

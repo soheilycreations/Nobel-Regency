@@ -134,9 +134,16 @@ export default function AdminToursPage() {
                 <input
                   value={editing.slug}
                   onChange={(e) => setEditing({ ...editing, slug: e.target.value })}
-                  className="input"
+                  className="input disabled:opacity-40"
                   placeholder="gal-oya-boat-safari"
+                  disabled={Boolean(editing.id)}
                 />
+                {editing.id && (
+                  <p className="mt-1 text-[10px] text-white/30">
+                    Locked after creation — changing this would create a duplicate tour instead of
+                    updating this one. Delete and re-create if you really need a different slug.
+                  </p>
+                )}
               </Field>
               <Field label="Name">
                 <input

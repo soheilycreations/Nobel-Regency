@@ -16,7 +16,7 @@ const BLANK_ROOM: Room = {
   description: "",
   pricePerNight: 0,
   hasACOption: false,
-  currency: "LKR",
+  currency: "USD",
   maxGuests: 2,
   bedType: "",
   totalUnits: 1,
@@ -140,9 +140,16 @@ export default function AdminRoomsPage() {
                 <input
                   value={editing.slug}
                   onChange={(e) => setEditing({ ...editing, slug: e.target.value })}
-                  className="input"
+                  className="input disabled:opacity-40"
                   placeholder="double-room-garden-view"
+                  disabled={Boolean(editing.id)}
                 />
+                {editing.id && (
+                  <p className="mt-1 text-[10px] text-white/30">
+                    Locked after creation — changing this would create a duplicate room instead of
+                    updating this one. Delete and re-create if you really need a different slug.
+                  </p>
+                )}
               </Field>
               <Field label="Name">
                 <input
@@ -176,13 +183,23 @@ export default function AdminRoomsPage() {
               </Field>
 
               <div className="grid grid-cols-2 gap-3">
-                <Field label="Price per night (LKR)">
+                <Field label="Price per night">
                   <input
                     type="number"
                     value={editing.pricePerNight}
                     onChange={(e) => setEditing({ ...editing, pricePerNight: Number(e.target.value) })}
                     className="input"
                   />
+                </Field>
+                <Field label="Currency">
+                  <select
+                    value={editing.currency}
+                    onChange={(e) => setEditing({ ...editing, currency: e.target.value as "LKR" | "USD" })}
+                    className="input"
+                  >
+                    <option value="USD">USD</option>
+                    <option value="LKR">LKR</option>
+                  </select>
                 </Field>
                 <Field label="Total units">
                   <input
@@ -232,7 +249,7 @@ export default function AdminRoomsPage() {
               </label>
 
               {editing.hasACOption && (
-                <Field label="AC surcharge per night (LKR)">
+                <Field label={`AC surcharge per night (${editing.currency})`}>
                   <input
                     type="number"
                     value={editing.acSurchargePerNight ?? ""}

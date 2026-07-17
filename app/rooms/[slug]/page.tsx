@@ -25,15 +25,19 @@ export default async function RoomPage({ params }: { params: { slug: string } })
     <main className="pt-28 md:pb-24 md:pt-32">
       <div className="mx-auto max-w-6xl px-5 md:px-10">
         <div className="grid gap-3 md:grid-cols-3 md:gap-4">
-          <div className="relative h-80 overflow-hidden rounded-2xl md:col-span-2 md:h-[28rem]">
-            <Image
-              src={room.images[0]}
-              alt={room.name}
-              fill
-              priority
-              sizes="(max-width: 768px) 100vw, 66vw"
-              className="object-cover"
-            />
+          <div className="relative h-80 overflow-hidden rounded-2xl bg-charcoal-soft md:col-span-2 md:h-[28rem]">
+            {room.images[0] ? (
+              <Image
+                src={room.images[0]}
+                alt={room.name}
+                fill
+                priority
+                sizes="(max-width: 768px) 100vw, 66vw"
+                className="object-cover"
+              />
+            ) : (
+              <div className="flex h-full items-center justify-center text-sm text-white/25">No photo yet</div>
+            )}
           </div>
           <div className="grid grid-cols-2 gap-3 md:grid-cols-1 md:gap-4">
             {room.images.slice(1, 3).map((src, i) => (

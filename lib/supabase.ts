@@ -83,32 +83,45 @@ function roomToRow(room: Room) {
 
 /** Fetches rooms from Supabase. Falls back to the bundled seed data if
  * Supabase isn't configured or the call fails — keeps the site working
- * during local dev and if the DB is briefly unreachable. */
+ * during local dev and if the DB is briefly unreachable. Wrapped in
+ * try/catch because an uncaught exception here (vs. a graceful Supabase
+ * error response) would crash the entire page that calls it, since this
+ * runs inside an async Server Component. */
 export async function getRooms(): Promise<Room[]> {
   if (!isSupabaseConfigured) return SEED_ROOMS;
-  const { data, error } = await supabase.from("rooms").select("*").order("price_per_night");
-  if (error || !data || data.length === 0) {
-    if (error) console.error("getRooms failed, using seed data:", error.message);
+  try {
+    const { data, error } = await supabase.from("rooms").select("*").order("price_per_night");
+    if (error || !data || data.length === 0) {
+      if (error) console.error("getRooms failed, using seed data:", error.message);
+      return SEED_ROOMS;
+    }
+    return data.map(rowToRoom);
+  } catch (err) {
+    console.error("getRooms threw, using seed data:", err);
     return SEED_ROOMS;
   }
-  return data.map(rowToRoom);
 }
 
 export async function getRoomBySlugRemote(slug: string): Promise<Room | undefined> {
   if (!isSupabaseConfigured) return SEED_ROOMS.find((r) => r.slug === slug);
-  const { data, error } = await supabase.from("rooms").select("*").eq("slug", slug).maybeSingle();
-  if (error || !data) {
-    if (error) {
-      console.error(
-        `getRoomBySlugRemote("${slug}") failed — falling back to seed data. This usually means there` +
-          ` are DUPLICATE rows with this slug in the rooms table (e.g. from re-running schema.sql after` +
-          ` room names changed). Check with: select slug, count(*) from rooms group by slug having count(*) > 1;`,
-        error.message
-      );
+  try {
+    const { data, error } = await supabase.from("rooms").select("*").eq("slug", slug).maybeSingle();
+    if (error || !data) {
+      if (error) {
+        console.error(
+          `getRoomBySlugRemote("${slug}") failed — falling back to seed data. This usually means there` +
+            ` are DUPLICATE rows with this slug in the rooms table (e.g. from re-running schema.sql after` +
+            ` room names changed). Check with: select slug, count(*) from rooms group by slug having count(*) > 1;`,
+          error.message
+        );
+      }
+      return SEED_ROOMS.find((r) => r.slug === slug);
     }
+    return rowToRoom(data);
+  } catch (err) {
+    console.error(`getRoomBySlugRemote("${slug}") threw, using seed data:`, err);
     return SEED_ROOMS.find((r) => r.slug === slug);
   }
-  return rowToRoom(data);
 }
 
 export async function upsertRoom(room: Room) {
@@ -161,29 +174,39 @@ function tourToRow(tour: Tour) {
 
 export async function getTours(): Promise<Tour[]> {
   if (!isSupabaseConfigured) return SEED_TOURS;
-  const { data, error } = await supabase.from("tours").select("*").order("name");
-  if (error || !data || data.length === 0) {
-    if (error) console.error("getTours failed, using seed data:", error.message);
+  try {
+    const { data, error } = await supabase.from("tours").select("*").order("name");
+    if (error || !data || data.length === 0) {
+      if (error) console.error("getTours failed, using seed data:", error.message);
+      return SEED_TOURS;
+    }
+    return data.map(rowToTour);
+  } catch (err) {
+    console.error("getTours threw, using seed data:", err);
     return SEED_TOURS;
   }
-  return data.map(rowToTour);
 }
 
 export async function getTourBySlugRemote(slug: string): Promise<Tour | undefined> {
   if (!isSupabaseConfigured) return SEED_TOURS.find((t) => t.slug === slug);
-  const { data, error } = await supabase.from("tours").select("*").eq("slug", slug).maybeSingle();
-  if (error || !data) {
-    if (error) {
-      console.error(
-        `getTourBySlugRemote("${slug}") failed — falling back to seed data. This usually means there` +
-          ` are DUPLICATE rows with this slug in the tours table. Check with:` +
-          ` select slug, count(*) from tours group by slug having count(*) > 1;`,
-        error.message
-      );
+  try {
+    const { data, error } = await supabase.from("tours").select("*").eq("slug", slug).maybeSingle();
+    if (error || !data) {
+      if (error) {
+        console.error(
+          `getTourBySlugRemote("${slug}") failed — falling back to seed data. This usually means there` +
+            ` are DUPLICATE rows with this slug in the tours table. Check with:` +
+            ` select slug, count(*) from tours group by slug having count(*) > 1;`,
+          error.message
+        );
+      }
+      return SEED_TOURS.find((t) => t.slug === slug);
     }
+    return rowToTour(data);
+  } catch (err) {
+    console.error(`getTourBySlugRemote("${slug}") threw, using seed data:`, err);
     return SEED_TOURS.find((t) => t.slug === slug);
   }
-  return rowToTour(data);
 }
 
 export async function upsertTour(tour: Tour) {

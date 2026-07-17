@@ -15,14 +15,18 @@ export default function RoomCard({ room, index = 0 }: { room: Room; index?: numb
       transition={{ duration: 0.6, delay: index * 0.1 }}
       className="group gold-border overflow-hidden rounded-2xl bg-charcoal-soft"
     >
-      <div className="relative h-64 w-full overflow-hidden">
-        <Image
-          src={room.images[0]}
-          alt={room.name}
-          fill
-          sizes="(max-width: 768px) 100vw, 33vw"
-          className="object-cover transition-transform duration-700 group-hover:scale-105"
-        />
+      <div className="relative h-64 w-full overflow-hidden bg-charcoal">
+        {room.images[0] ? (
+          <Image
+            src={room.images[0]}
+            alt={room.name}
+            fill
+            sizes="(max-width: 768px) 100vw, 33vw"
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+        ) : (
+          <div className="flex h-full items-center justify-center text-xs text-white/25">No photo yet</div>
+        )}
         {room.featured && (
           <span className="absolute left-4 top-4 rounded-full bg-gold-gradient px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-charcoal-deep">
             Featured
