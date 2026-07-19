@@ -2,6 +2,8 @@ import TourCard from "@/components/ui/TourCard";
 import { getTours } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+export const revalidate = 0;
 
 export const metadata = {
   title: "Tours & Experiences | Nobel Regency Hotel, Bibile",

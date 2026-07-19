@@ -2,6 +2,8 @@ import LocationCard from "@/components/ui/LocationCard";
 import { getLocations } from "@/lib/supabase";
 
 export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+export const revalidate = 0;
 
 export const metadata = {
   title: "Places Near Nobel Regency Hotel | Bibile, Sri Lanka",

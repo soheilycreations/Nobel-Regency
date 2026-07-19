@@ -6,6 +6,8 @@ import { getTourBySlugRemote } from "@/lib/supabase";
 import { HOTEL } from "@/lib/rooms-data";
 
 export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+export const revalidate = 0;
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const tour = await getTourBySlugRemote(params.slug);

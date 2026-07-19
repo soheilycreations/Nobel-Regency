@@ -7,6 +7,8 @@ import { formatPrice } from "@/lib/utils";
 import { Check } from "lucide-react";
 
 export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+export const revalidate = 0;
 
 export async function generateMetadata({ params }: { params: { slug: string } }): Promise<Metadata> {
   const room = await getRoomBySlugRemote(params.slug);

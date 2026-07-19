@@ -12,6 +12,8 @@ import { Leaf, Dumbbell, Sparkles, Camera, HeartHandshake, Gem, Car, UtensilsCro
 // rooms/tours data existed at the last build/deploy — admin panel edits
 // (new photos, price changes, etc.) wouldn't show up until the next deploy.
 export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+export const revalidate = 0;
 
 // Heavy / below-the-fold components are code-split to keep initial load fast on mobile.
 const LocalMap = nextDynamic(() => import("@/components/ui/LocalMap"), {
