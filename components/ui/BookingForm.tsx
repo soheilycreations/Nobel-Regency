@@ -10,12 +10,14 @@ import "react-datepicker/dist/react-datepicker.css";
 import { motion, AnimatePresence } from "framer-motion";
 import { Check, Loader2 } from "lucide-react";
 import PayPalButton from "@/components/ui/PayPalButton";
+import Recaptcha from "@/components/ui/Recaptcha";
 import { ROOMS as SEED_ROOMS } from "@/lib/rooms-data";
 import { guestDetailsSchema, type GuestDetailsForm } from "@/lib/schemas";
-import { checkAvailability, createBooking, getRooms } from "@/lib/supabase";
+import { checkAvailability, getRooms } from "@/lib/supabase";
 import { formatPrice, nightsBetween, lkrToUsd } from "@/lib/utils";
 
 const STEPS = ["Dates & Room", "Guest Details", "Confirm & Pay"] as const;
+const RECAPTCHA_CONFIGURED = Boolean(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY);
 
 export default function BookingForm() {
   const params = useSearchParams();
@@ -36,6 +38,7 @@ export default function BookingForm() {
   const [confirmed, setConfirmed] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"later" | "paypal">("later");
   const [paypalError, setPaypalError] = useState<string | null>(null);
+  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
 
   const room = useMemo(() => ROOMS.find((r) => r.slug === roomSlug) ?? ROOMS[0], [roomSlug]);
   const nights = checkIn && checkOut ? nightsBetween(checkIn.toISOString(), checkOut.toISOString()) : 0;
@@ -58,15 +61,24 @@ export default function BookingForm() {
   } = useForm<GuestDetailsForm>({ resolver: zodResolver(guestDetailsSchema) });
 
   const bookingMutation = useMutation({
-    mutationFn: () =>
-      createBooking({
-        roomSlug,
-        checkIn: checkIn!.toISOString().slice(0, 10),
-        checkOut: checkOut!.toISOString().slice(0, 10),
-        guests,
-        acRequested: room.hasACOption ? acRequested : false,
-        ...getValues(),
-      }),
+    mutationFn: async () => {
+      const res = await fetch("/api/create-booking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          recaptchaToken,
+          roomSlug,
+          checkIn: checkIn!.toISOString().slice(0, 10),
+          checkOut: checkOut!.toISOString().slice(0, 10),
+          guests,
+          acRequested: room.hasACOption ? acRequested : false,
+          ...getValues(),
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Could not create booking");
+      return data.booking;
+    },
     onSuccess: () => setConfirmed(true),
   });
 
@@ -355,6 +367,8 @@ export default function BookingForm() {
                   details are collected on this page.
                 </p>
 
+                <Recaptcha onChange={setRecaptchaToken} />
+
                 <div className="flex gap-3">
                   <button
                     type="button"
@@ -365,7 +379,7 @@ export default function BookingForm() {
                   </button>
                   <button
                     onClick={() => bookingMutation.mutate()}
-                    disabled={bookingMutation.isPending}
+                    disabled={bookingMutation.isPending || (RECAPTCHA_CONFIGURED && !recaptchaToken)}
                     className="gold-shimmer-btn flex w-2/3 items-center justify-center gap-2 rounded-xl py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-charcoal-deep disabled:opacity-60"
                   >
                     {bookingMutation.isPending && <Loader2 size={16} className="animate-spin" />}
@@ -375,7 +389,9 @@ export default function BookingForm() {
 
                 {bookingMutation.isError && (
                   <p className="text-sm text-red-400">
-                    Something went wrong sending your request. Please try again or reach us on WhatsApp.
+                    {bookingMutation.error instanceof Error
+                      ? bookingMutation.error.message
+                      : "Something went wrong sending your request. Please try again or reach us on WhatsApp."}
                   </p>
                 )}
               </>

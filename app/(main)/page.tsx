@@ -5,7 +5,7 @@ import BookingWidget from "@/components/ui/BookingWidget";
 import RoomCard from "@/components/ui/RoomCard";
 import TourCard from "@/components/ui/TourCard";
 import Carousel from "@/components/ui/Carousel";
-import { getRooms, getTours, getLocations } from "@/lib/supabase";
+import { getRooms, getTours, getLocations, getGalleryPhotos } from "@/lib/supabase";
 import { Leaf, Dumbbell, Sparkles, Camera, HeartHandshake, Gem, Car, UtensilsCrossed } from "lucide-react";
 
 // Without this, Next.js treats this page as static and bakes in whatever
@@ -41,7 +41,12 @@ const AMENITIES = [
 // data if Supabase isn't configured or unreachable), so edits made in
 // /admin actually show up here.
 export default async function HomePage() {
-  const [rooms, tours, locations] = await Promise.all([getRooms(), getTours(), getLocations()]);
+  const [rooms, tours, locations, galleryPhotos] = await Promise.all([
+    getRooms(),
+    getTours(),
+    getLocations(),
+    getGalleryPhotos(),
+  ]);
 
   return (
     <main className="overflow-x-hidden">
@@ -113,7 +118,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <LifeGallery />
+      <LifeGallery photos={galleryPhotos} />
       <LocalMap locations={locations} />
       <Testimonials />
     </main>

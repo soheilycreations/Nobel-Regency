@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { Check, Clock, Tag } from "lucide-react";
 import { getTourBySlugRemote } from "@/lib/supabase";
 import { HOTEL } from "@/lib/rooms-data";
+import BackButton from "@/components/ui/BackButton";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -28,6 +29,7 @@ export default async function TourPage({ params }: { params: { slug: string } })
   return (
     <main className="px-5 pb-24 pt-28 md:px-10 md:pt-32">
       <div className="mx-auto max-w-4xl">
+        <BackButton fallbackHref="/tours" />
         <div className="relative h-72 overflow-hidden rounded-2xl bg-charcoal-soft md:h-96">
           {tour.images[0] ? (
             <Image src={tour.images[0]} alt={tour.name} fill priority sizes="100vw" className="object-cover" />

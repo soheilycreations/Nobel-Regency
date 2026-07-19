@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { getRoomBySlugRemote } from "@/lib/supabase";
 import { formatPrice } from "@/lib/utils";
 import { Check } from "lucide-react";
+import BackButton from "@/components/ui/BackButton";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -26,6 +27,7 @@ export default async function RoomPage({ params }: { params: { slug: string } })
   return (
     <main className="pt-28 md:pb-24 md:pt-32">
       <div className="mx-auto max-w-6xl px-5 md:px-10">
+        <BackButton fallbackHref="/#rooms" />
         <div className="grid gap-3 md:grid-cols-3 md:gap-4">
           <div className="relative h-80 overflow-hidden rounded-2xl bg-charcoal-soft md:col-span-2 md:h-[28rem]">
             {room.images[0] ? (

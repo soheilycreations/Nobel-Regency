@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { Check, MapPin } from "lucide-react";
 import { getLocationBySlugRemote } from "@/lib/supabase";
 import { HOTEL } from "@/lib/rooms-data";
+import BackButton from "@/components/ui/BackButton";
 
 export const dynamic = "force-dynamic";
 export const fetchCache = "force-no-store";
@@ -29,6 +30,7 @@ export default async function LocationPage({ params }: { params: { slug: string 
   return (
     <main className="px-5 pb-24 pt-28 md:px-10 md:pt-32">
       <div className="mx-auto max-w-4xl">
+        <BackButton fallbackHref="/locations" />
         <div className="relative h-72 overflow-hidden rounded-2xl bg-charcoal-soft md:h-96">
           {location.images[0] ? (
             <Image src={location.images[0]} alt={location.name} fill priority sizes="100vw" className="object-cover" />

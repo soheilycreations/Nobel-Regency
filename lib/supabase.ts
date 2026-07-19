@@ -1,8 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
-import type { AvailabilityResult, BookingRequest, BookingRecord, Room, Tour, Location } from "@/types";
+import type { AvailabilityResult, BookingRequest, BookingRecord, Room, Tour, Location, GalleryPhoto } from "@/types";
 import { ROOMS as SEED_ROOMS } from "@/lib/rooms-data";
 import { TOURS as SEED_TOURS } from "@/lib/tours-data";
 import { LOCATIONS as SEED_LOCATIONS } from "@/lib/locations-data";
+import { GALLERY_PHOTOS as SEED_GALLERY } from "@/lib/gallery-data";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? "";
@@ -309,6 +310,67 @@ export async function deleteLocation(slug: string) {
 }
 
 /* ------------------------------------------------------------------ */
+/* Gallery photos (public read, admin write)                            */
+/* ------------------------------------------------------------------ */
+
+function rowToGalleryPhoto(row: any): GalleryPhoto {
+  return {
+    id: row.id,
+    imageUrl: row.image_url,
+    caption: row.caption ?? "",
+    sortOrder: row.sort_order ?? 0,
+  };
+}
+
+function galleryPhotoToRow(photo: GalleryPhoto) {
+  return {
+    image_url: photo.imageUrl,
+    caption: photo.caption,
+    sort_order: photo.sortOrder ?? 0,
+  };
+}
+
+export async function getGalleryPhotos(): Promise<GalleryPhoto[]> {
+  if (!isSupabaseConfigured) return SEED_GALLERY;
+  try {
+    const { data, error } = await supabase.from("gallery_photos").select("*").order("sort_order");
+    if (error || !data || data.length === 0) {
+      if (error) console.error("getGalleryPhotos failed, using seed data:", error.message);
+      return SEED_GALLERY;
+    }
+    return data.map(rowToGalleryPhoto);
+  } catch (err) {
+    console.error("getGalleryPhotos threw, using seed data:", err);
+    return SEED_GALLERY;
+  }
+}
+
+export async function upsertGalleryPhoto(photo: GalleryPhoto) {
+  if (photo.id) {
+    const { data, error } = await supabase
+      .from("gallery_photos")
+      .update(galleryPhotoToRow(photo))
+      .eq("id", photo.id)
+      .select()
+      .single();
+    if (error) throw new Error(error.message);
+    return rowToGalleryPhoto(data);
+  }
+  const { data, error } = await supabase
+    .from("gallery_photos")
+    .insert(galleryPhotoToRow(photo))
+    .select()
+    .single();
+  if (error) throw new Error(error.message);
+  return rowToGalleryPhoto(data);
+}
+
+export async function deleteGalleryPhoto(id: string) {
+  const { error } = await supabase.from("gallery_photos").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+}
+
+/* ------------------------------------------------------------------ */
 /* Photo uploads (Supabase Storage)                                    */
 /* ------------------------------------------------------------------ */
 
@@ -316,7 +378,7 @@ export async function deleteLocation(slug: string) {
  * URL. The bucket must exist and be set to public read — see
  * supabase/schema.sql for the one-time setup note (buckets can't be created
  * via SQL, only via the dashboard or Storage API). */
-export async function uploadPhoto(file: File, folder: "rooms" | "tours" | "locations"): Promise<string> {
+export async function uploadPhoto(file: File, folder: "rooms" | "tours" | "locations" | "gallery"): Promise<string> {
   const ext = file.name.split(".").pop();
   const path = `${folder}/${crypto.randomUUID()}.${ext}`;
   const { error } = await supabase.storage.from("property-photos").upload(path, file, {
@@ -362,27 +424,12 @@ export async function checkAvailability(
   return { available: roomsLeft > 0, roomsLeft };
 }
 
-export async function createBooking(booking: BookingRequest) {
-  const { data, error } = await supabase
-    .from("bookings")
-    .insert({
-      room_slug: booking.roomSlug,
-      check_in: booking.checkIn,
-      check_out: booking.checkOut,
-      guests: booking.guests,
-      ac_requested: booking.acRequested,
-      guest_name: booking.fullName,
-      guest_email: booking.email,
-      guest_phone: booking.phone,
-      special_requests: booking.specialRequests ?? null,
-      status: "pending",
-    })
-    .select()
-    .single();
-
-  if (error) throw new Error(error.message);
-  return data;
-}
+// Note: there used to be a client-side createBooking() here that inserted
+// directly via the anon key. Removed — bookings now go through
+// /api/create-booking, which verifies a reCAPTCHA token server-side before
+// writing (using the service-role key). A direct anon insert would fail
+// anyway now, since the matching RLS policy was intentionally removed; see
+// supabase/schema.sql for why.
 
 /* ------------------------------------------------------------------ */
 /* Bookings (admin panel)                                               */

@@ -125,7 +125,27 @@ Safari as still-placeholder since those weren't part of what you sent.
    before they pay, but update that number periodically — it will drift from
    the real market rate over time.
 
-### 3. Tours and pricing
+### 3. Spam protection (reCAPTCHA)
+
+The "Reserve, Pay Later" booking path (the one that doesn't go through
+PayPal) is the one exposed to spam/bot submissions, since it's just a form.
+1. google.com/recaptcha/admin → Create → choose **reCAPTCHA v2, "I'm not a
+   robot" Checkbox** → add your domain(s), including `localhost` for testing.
+2. Add the Site Key and Secret Key to `.env.local`:
+   ```
+   NEXT_PUBLIC_RECAPTCHA_SITE_KEY=...
+   RECAPTCHA_SECRET_KEY=...
+   ```
+3. Without these set, the booking form still works — it just has no spam
+   protection (fails open rather than blocking real guests).
+
+The actual enforcement happens server-side in `/api/create-booking`, not
+just in the browser — the database no longer accepts direct anonymous
+booking inserts at all (see the RLS notes in `schema.sql`), so a bot can't
+bypass the check by skipping your form and calling Supabase directly, which
+is the usual way a purely client-side captcha gets defeated.
+
+### 4. Tours and pricing
 
 Tours are placeholder content — real regional activities (Gal Oya boat
 safari, Vedda village walks, Dunhinda Falls, Maduru Oya safari) but with

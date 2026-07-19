@@ -27,6 +27,7 @@ export async function POST(req: Request) {
         guest_phone: booking.phone,
         special_requests: booking.specialRequests ?? null,
         status: "confirmed",
+        payment_status: "paid",
         paypal_order_id: orderId,
       })
       .select()

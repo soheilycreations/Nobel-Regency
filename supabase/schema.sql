@@ -49,6 +49,14 @@ create table if not exists locations (
   created_at timestamptz default now()
 );
 
+create table if not exists gallery_photos (
+  id uuid primary key default gen_random_uuid(),
+  image_url text not null,
+  caption text not null default '',
+  sort_order int not null default 0,
+  created_at timestamptz default now()
+);
+
 -- ============================================================
 -- Repair block — safe to run repeatedly, on brand-new or already-existing
 -- tables alike.
@@ -78,6 +86,8 @@ alter table tours add column if not exists highlights jsonb not null default '[]
 alter table tours add column if not exists featured boolean not null default false;
 
 alter table locations add column if not exists featured boolean not null default false;
+
+alter table bookings add column if not exists payment_status text not null default 'unpaid';
 
 -- Add the unique constraint on slug if it's missing (this is the important
 -- one — without it, duplicate slugs are possible and things silently break
@@ -137,6 +147,7 @@ create table if not exists bookings (
   guest_phone text not null,
   special_requests text,
   status text not null default 'pending', -- pending | confirmed | cancelled
+  payment_status text not null default 'unpaid', -- unpaid | paid
   paypal_order_id text,
   stay_range daterange generated always as (
     daterange(check_in, check_out, '[)')
@@ -221,18 +232,31 @@ $$;
 alter table rooms enable row level security;
 alter table tours enable row level security;
 alter table locations enable row level security;
+alter table gallery_photos enable row level security;
 alter table bookings enable row level security;
 
 create policy "Public can read rooms" on rooms for select using (true);
 create policy "Public can read tours" on tours for select using (true);
 create policy "Public can read locations" on locations for select using (true);
-create policy "Public can create bookings" on bookings for insert with check (true);
+create policy "Public can read gallery_photos" on gallery_photos for select using (true);
+-- NOTE: there is deliberately NO "public can insert bookings" policy.
+-- Bookings are created via the /api/create-booking server route (using the
+-- service-role key), which verifies a reCAPTCHA token first. This is what
+-- actually stops spam — a client-side-only check can be bypassed by a bot
+-- calling Supabase directly, since Supabase credentials are visible in any
+-- browser's network tab. Removing anon INSERT access here closes that
+-- exact bypass path.
+-- (PayPal-paid bookings go through /api/paypal/capture-order, which is
+-- gated by PayPal actually verifying a real payment — a stronger check
+-- than reCAPTCHA, so no additional gate is needed there.)
 
 create policy "Admins can manage rooms" on rooms for all
   using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
 create policy "Admins can manage tours" on tours for all
   using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
 create policy "Admins can manage locations" on locations for all
+  using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
+create policy "Admins can manage gallery_photos" on gallery_photos for all
   using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
 create policy "Admins can read bookings" on bookings for select
   using (auth.role() = 'authenticated');
@@ -277,6 +301,18 @@ insert into locations (slug, name, tagline, description, distance_label, images,
   ('bibile-bubula-natural-springs', 'Bibile Bubula Natural Springs', 'A natural spring right in Bibile town', 'Bibile Bubula is a natural spring a few kilometres from the hotel, a quiet, local spot rather than a tourist attraction — worth a stop if you''re exploring Bibile itself.', '~3 km from the hotel', '["/photos/garden-path-flowers.jpg"]', '["Natural spring","Close to town centre"]', false),
   ('mahiyangana-raja-maha-vihara', 'Mahiyangana Raja Maha Vihara', 'One of Sri Lanka''s most sacred Buddhist temples', 'Mahiyangana Raja Maha Vihara, about 39 km from the hotel, is one of the sixteen most sacred Buddhist sites in Sri Lanka (Solosmasthana), said to mark the Buddha''s first visit to the island.', '39 km from the hotel', '["/photos/garden-sunflare.jpg"]', '["Sacred Buddhist site","Historic architecture","Combine with Dunhinda Falls"]', false)
 on conflict (slug) do nothing;
+
+-- Gallery photos don't have a natural unique key to conflict on, so this
+-- only seeds them if the table is currently empty (avoids re-inserting
+-- duplicates every time this file is re-run).
+insert into gallery_photos (image_url, caption, sort_order)
+select * from (values
+  ('/photos/organic-citrus-tree.jpg', 'From the organic garden', 0),
+  ('/photos/king-coconut-drink.jpg', 'Fresh king coconut, garden-side', 1),
+  ('/photos/breakfast-couple-garden.jpg', 'Home-cooked, organic breakfasts', 2),
+  ('/photos/office-reception-sign.jpg', 'Find your way in', 3)
+) as seed(image_url, caption, sort_order)
+where not exists (select 1 from gallery_photos);
 
 -- ============================================================
 -- Storage policies for the property-photos bucket

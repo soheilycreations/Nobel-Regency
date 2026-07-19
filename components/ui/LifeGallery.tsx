@@ -2,31 +2,9 @@
 
 import Image from "next/image";
 import { motion } from "framer-motion";
+import type { GalleryPhoto } from "@/types";
 
-const GALLERY = [
-  {
-    src: "/photos/organic-citrus-tree.jpg",
-    alt: "Citrus growing in the organic garden at Nobel Regency",
-    caption: "From the organic garden",
-  },
-  {
-    src: "/photos/king-coconut-drink.jpg",
-    alt: "Fresh king coconut served in a clay cup overlooking the garden",
-    caption: "Fresh king coconut, garden-side",
-  },
-  {
-    src: "/photos/breakfast-couple-garden.jpg",
-    alt: "Guests enjoying a home-cooked breakfast in the garden",
-    caption: "Home-cooked, organic breakfasts",
-  },
-  {
-    src: "/photos/office-reception-sign.jpg",
-    alt: "Hand-painted reception sign along the garden path",
-    caption: "Find your way in",
-  },
-];
-
-export default function LifeGallery() {
+export default function LifeGallery({ photos }: { photos: GalleryPhoto[] }) {
   return (
     <section className="mx-auto max-w-7xl px-5 py-24 md:px-10">
       <div className="mb-12 text-center">
@@ -36,10 +14,10 @@ export default function LifeGallery() {
         </h2>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        {GALLERY.map((item, i) => (
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(160px,1fr))] gap-4">
+        {photos.map((item, i) => (
           <motion.div
-            key={item.src}
+            key={item.id ?? item.imageUrl}
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -47,14 +25,16 @@ export default function LifeGallery() {
             className="group gold-border relative aspect-[3/4] overflow-hidden rounded-2xl"
           >
             <Image
-              src={item.src}
-              alt={item.alt}
+              src={item.imageUrl}
+              alt={item.caption || "Nobel Regency Hotel"}
               fill
               sizes="(max-width: 768px) 50vw, 25vw"
               className="object-cover transition-transform duration-700 group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-charcoal-deep/80 via-transparent to-transparent" />
-            <p className="absolute bottom-3 left-3 right-3 text-xs text-white/85">{item.caption}</p>
+            {item.caption && (
+              <p className="absolute bottom-3 left-3 right-3 text-xs text-white/85">{item.caption}</p>
+            )}
           </motion.div>
         ))}
       </div>

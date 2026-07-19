@@ -18,6 +18,13 @@ export interface Room {
   featured?: boolean;
 }
 
+export interface GalleryPhoto {
+  id?: string;
+  imageUrl: string;
+  caption: string;
+  sortOrder?: number;
+}
+
 export interface Location {
   id?: string;
   slug: string;

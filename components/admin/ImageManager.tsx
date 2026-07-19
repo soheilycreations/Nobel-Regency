@@ -12,7 +12,7 @@ export default function ImageManager({
 }: {
   images: string[];
   onChange: (images: string[]) => void;
-  folder: "rooms" | "tours" | "locations";
+  folder: "rooms" | "tours" | "locations" | "gallery";
 }) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);

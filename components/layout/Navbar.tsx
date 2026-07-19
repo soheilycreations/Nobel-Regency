@@ -78,6 +78,13 @@ export default function Navbar() {
             exit={{ opacity: 0 }}
             className="glass-panel fixed inset-0 top-0 z-40 flex flex-col items-center justify-center gap-8 md:hidden"
           >
+            <button
+              onClick={() => setOpen(false)}
+              aria-label="Close menu"
+              className="absolute right-5 top-6 rounded-full border border-gold/30 p-2 text-gold"
+            >
+              <X size={22} />
+            </button>
             <Image
               src="/brand/crest-mark.png"
               alt="Nobel Regency Hotel crest"
